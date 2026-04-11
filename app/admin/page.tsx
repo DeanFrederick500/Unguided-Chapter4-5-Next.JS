@@ -55,14 +55,17 @@ export default function AdminPage() {
 
   // 🔥 HITUNG SUMMARY
   const totalCargo = dataDashboard.length;
+
   const onTime = dataDashboard.filter(
-    (s) => s.flightStatus === "On Time"
+    (s: any) => s.flightStatus === "On Time"
   ).length;
+
   const delayed = dataDashboard.filter(
-    (s) => s.flightStatus === "Delayed"
+    (s: any) => s.flightStatus === "Delayed"
   ).length;
+
   const departed = dataDashboard.filter(
-    (s) => s.flightStatus === "Departed"
+    (s: any) => s.flightStatus === "Departed"
   ).length;
 
   // CHART (dummy)
