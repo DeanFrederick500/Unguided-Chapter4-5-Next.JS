@@ -13,6 +13,8 @@ import {
   Menu,
 } from "lucide-react";
 
+import Image from "next/image";
+
 export default function AdminLayout({ children }: any) {
   const pathname = usePathname();
   const router = useRouter();
@@ -41,10 +43,12 @@ export default function AdminLayout({ children }: any) {
         >
           {open ? (
             <div className="flex items-center gap-3">
-              <Package
-                size={34}
-                className="text-white"
-                strokeWidth={2.2}
+              <Image
+                src="/logo siweb.png"
+                alt="Logo ExpressAir"
+                width={45}
+                height={45}
+                className="object-contain"
               />
 
               <div className="leading-tight">
@@ -77,8 +81,8 @@ export default function AdminLayout({ children }: any) {
               <Link key={item.path} href={item.path}>
                 <div
                   className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition ${active
-                      ? "bg-white text-blue-700"
-                      : "hover:bg-blue-600"
+                    ? "bg-white text-blue-700"
+                    : "hover:bg-blue-600"
                     }`}
                 >
                   <Icon size={20} />

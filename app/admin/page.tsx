@@ -27,45 +27,42 @@ export default function AdminPage() {
     year: "numeric",
   });
 
-  // 🔥 AMBIL DATA SHIPMENTS
+  // AMBIL DATA SHIPMENTS
   const shipments =
     typeof window !== "undefined"
       ? JSON.parse(localStorage.getItem("shipments") || "[]")
       : [];
 
-  // 🔥 DATA STATUS FLIGHT
-  const flightsData = [
-    { code: "EA-101", etd: "13:20", status: "On Time" },
-    { code: "EA-205", etd: "15:30", status: "Delayed" },
-    { code: "EA-312", etd: "16:45", status: "Departed" },
-    { code: "EA-408", etd: "18:00", status: "On Time" },
-    { code: "EA-156", etd: "19:15", status: "Delayed" },
-  ];
+  // AMBIL DATA FLIGHTS
+  const flightsData =
+    typeof window !== "undefined"
+      ? JSON.parse(localStorage.getItem("flights") || "[]")
+      : [];
 
-  // 🔥 GABUNGKAN DATA
+  // GABUNGKAN DATA
   const dataDashboard = shipments.map((s: any) => {
-    const flight = flightsData.find((f) => f.code === s.flight);
+    const flight = flightsData.find((f) => f.flight === s.flight);
 
     return {
       ...s,
-      flightStatus: flight ? flight.status : "Unknown",
+      flightStatus: flight ? flight.status : "unknown",
       etd: flight ? flight.etd : "--:--",
     };
   });
 
-  // 🔥 HITUNG SUMMARY
+  // HITUNG SUMMARY
   const totalCargo = dataDashboard.length;
 
   const onTime = dataDashboard.filter(
-    (s: any) => s.flightStatus === "On Time"
+    (s: any) => s.flightStatus === "on-time"
   ).length;
 
   const delayed = dataDashboard.filter(
-    (s: any) => s.flightStatus === "Delayed"
+    (s: any) => s.flightStatus === "delayed"
   ).length;
 
   const departed = dataDashboard.filter(
-    (s: any) => s.flightStatus === "Departed"
+    (s: any) => s.flightStatus === "departed"
   ).length;
 
   // CHART (dummy)
@@ -255,19 +252,19 @@ export default function AdminPage() {
 
                 <td className="p-3">
 
-                  {s.flightStatus === "Departed" && (
+                  {s.flightStatus === "departed" && (
                     <span className="flex items-center gap-1 bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs w-fit">
                       <ArrowUpRight size={14} /> Departed
                     </span>
                   )}
 
-                  {s.flightStatus === "On Time" && (
+                  {s.flightStatus === "on-time" && (
                     <span className="flex items-center gap-1 bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs w-fit">
                       <CheckCircle size={14} /> On-Time
                     </span>
                   )}
 
-                  {s.flightStatus === "Delayed" && (
+                  {s.flightStatus === "delayed" && (
                     <span className="flex items-center gap-1 bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs w-fit">
                       <AlertTriangle size={14} /> Delayed
                     </span>

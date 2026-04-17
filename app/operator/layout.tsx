@@ -12,6 +12,8 @@ import {
   Menu,
 } from "lucide-react";
 
+import Image from "next/image";
+
 export default function AdminLayout({ children }: any) {
   const pathname = usePathname();
   const router = useRouter();
@@ -28,24 +30,24 @@ export default function AdminLayout({ children }: any) {
 
       {/* SIDEBAR */}
       <div
-        className={`bg-blue-700 text-white ${
-          open ? "w-64" : "w-20"
-        } transition-all duration-300 flex flex-col fixed left-0 top-0 h-full`}
+        className={`bg-blue-700 text-white ${open ? "w-64" : "w-20"
+          } transition-all duration-300 flex flex-col fixed left-0 top-0 h-full`}
       >
 
         {/* LOGO + TOGGLE */}
         <div
-          className={`flex items-center p-4 border-b border-white/20 ${
-            open ? "justify-between" : "justify-center"
-          }`}
+          className={`flex items-center p-4 border-b border-white/20 ${open ? "justify-between" : "justify-center"
+            }`}
         >
 
           {open ? (
             <div className="flex items-center gap-3">
-              <Package
-                size={34}
-                className="text-white"
-                strokeWidth={2.2}
+              <Image
+                src="/logo siweb.png"
+                alt="Logo ExpressAir"
+                width={45}
+                height={45}
+                className="object-contain"
               />
 
               <div className="leading-tight">
@@ -77,11 +79,10 @@ export default function AdminLayout({ children }: any) {
             return (
               <Link key={item.path} href={item.path}>
                 <div
-                  className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition ${
-                    active
+                  className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition ${active
                       ? "bg-white text-blue-700"
                       : "hover:bg-blue-600"
-                  }`}
+                    }`}
                 >
                   <Icon size={20} />
                   {open && <span>{item.name}</span>}
@@ -122,9 +123,8 @@ export default function AdminLayout({ children }: any) {
 
       {/* CONTENT */}
       <div
-        className={`flex-1 bg-gray-100 p-6 overflow-y-auto transition-all duration-300 ${
-          open ? "ml-64" : "ml-20"
-        }`}
+        className={`flex-1 bg-gray-100 p-6 overflow-y-auto transition-all duration-300 ${open ? "ml-64" : "ml-20"
+          }`}
       >
         {children}
       </div>

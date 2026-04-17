@@ -71,6 +71,14 @@ export default function ReportPage() {
     setChartData(generateChartData(startDate, endDate));
   };
 
+  const exportPDF = () => {
+    alert("Export PDF berhasil!");
+  };
+
+  const exportExcel = () => {
+    alert("Export Excel berhasil!");
+  };
+
   return (
     <div>
       {/* TITLE */}
@@ -238,13 +246,17 @@ export default function ReportPage() {
 
         <div className="flex gap-3">
 
-          <button className="border border-blue-700 text-blue-700 px-4 py-2 rounded-lg flex items-center gap-2">
+          <button
+            onClick={exportPDF}
+            className="border border-blue-700 text-blue-700 px-4 py-2 rounded-lg flex items-center gap-2">
             <FileDown size={18} />
-            Export CSV
+            Export PDF
           </button>
 
-          <button className="bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
-            <FileSpreadsheet size={18} />
+          <button
+            onClick={exportExcel}
+            className="bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+           <FileSpreadsheet size={18} />
             Export Excel
           </button>
 

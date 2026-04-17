@@ -9,18 +9,23 @@ import {
 } from "lucide-react";
 
 export default function FlightsPage() {
-  const [flights, setFlights] = useState([
-    { id: 1, flight: "EA-101", asal: "Jakarta (CGK)", tujuan: "Singapore (SIN)", etd: "13:20", eta: "15:45", status: "departed" },
-    { id: 2, flight: "EA-205", asal: "Surabaya (SUB)", tujuan: "Bangkok (BKK)", etd: "15:30", eta: "18:00", status: "on-time" },
-    { id: 3, flight: "EA-312", asal: "Bali (DPS)", tujuan: "Tokyo (NRT)", etd: "16:45", eta: "23:30", status: "delayed" },
-    { id: 4, flight: "EA-408", asal: "Jakarta (CGK)", tujuan: "Hong Kong (HKG)", etd: "18:00", eta: "21:45", status: "on-time" },
-    { id: 5, flight: "EA-156", asal: "Medan (KNO)", tujuan: "Kuala Lumpur (KUL)", etd: "19:15", eta: "20:30", status: "on-time" },
-    { id: 6, flight: "EA-523", asal: "Jakarta (CGK)", tujuan: "Sydney (SYD)", etd: "20:30", eta: "06:15", status: "on-time" },
-    { id: 7, flight: "EA-777", asal: "Bali (DPS)", tujuan: "Dubai (DXB)", etd: "21:00", eta: "03:45", status: "on-time" },
-    { id: 8, flight: "EA-889", asal: "Surabaya (SUB)", tujuan: "Seoul (ICN)", etd: "22:10", eta: "05:00", status: "delayed" },
-    { id: 9, flight: "EA-990", asal: "Jakarta (CGK)", tujuan: "Tokyo (NRT)", etd: "23:00", eta: "06:30", status: "on-time" },
-    { id: 10, flight: "EA-321", asal: "Medan (KNO)", tujuan: "Singapore (SIN)", etd: "12:00", eta: "13:45", status: "departed" },
-  ]);
+  const defaultFlights = [
+    { id: 1, flight: "EA-101", asal: "Jakarta (CGK)", tujuan: "Singapore (SIN)", etd: "13:20", eta: "15:45", status: "departed", defaultStatus: "departed" },
+    { id: 2, flight: "EA-205", asal: "Surabaya (SUB)", tujuan: "Bangkok (BKK)", etd: "15:30", eta: "18:00", status: "on-time", defaultStatus: "on-time" },
+    { id: 3, flight: "EA-312", asal: "Bali (DPS)", tujuan: "Tokyo (NRT)", etd: "16:45", eta: "23:30", status: "delayed", defaultStatus: "delayed" },
+    { id: 4, flight: "EA-408", asal: "Jakarta (CGK)", tujuan: "Hong Kong (HKG)", etd: "18:00", eta: "21:45", status: "on-time", defaultStatus: "on-time" },
+    { id: 5, flight: "EA-156", asal: "Medan (KNO)", tujuan: "Kuala Lumpur (KUL)", etd: "19:15", eta: "20:30", status: "on-time", defaultStatus: "on-time" },
+    { id: 6, flight: "EA-523", asal: "Jakarta (CGK)", tujuan: "Sydney (SYD)", etd: "20:30", eta: "06:15", status: "on-time", defaultStatus: "on-time" },
+    { id: 7, flight: "EA-777", asal: "Bali (DPS)", tujuan: "Dubai (DXB)", etd: "21:00", eta: "03:45", status: "on-time", defaultStatus: "on-time" },
+    { id: 8, flight: "EA-889", asal: "Surabaya (SUB)", tujuan: "Seoul (ICN)", etd: "22:10", eta: "05:00", status: "delayed", defaultStatus: "delayed" },
+    { id: 9, flight: "EA-990", asal: "Jakarta (CGK)", tujuan: "Tokyo (NRT)", etd: "23:00", eta: "06:30", status: "on-time", defaultStatus: "on-time" },
+    { id: 10, flight: "EA-321", asal: "Medan (KNO)", tujuan: "Singapore (SIN)", etd: "12:00", eta: "13:45", status: "departed", defaultStatus: "departed" },
+  ];
+
+  const [flights, setFlights] = useState(() => {
+    const saved = localStorage.getItem("flights");
+    return saved ? JSON.parse(saved) : defaultFlights;
+  });
 
 
 
@@ -28,7 +33,39 @@ export default function FlightsPage() {
   const totalDelayed = flights.filter(f => f.status === "delayed").length;
   const totalDeparted = flights.filter(f => f.status === "departed").length;
 
+  const openModal = (flight: any) => {
+    setSelected(flight);
 
+    if (flight.status === "delayed") {
+      setNewStatus("delayed");
+    } else {
+      setNewStatus("default");
+    }
+  };
+
+  const closeModal = () => setSelected(null);
+
+  const updateStatus = () => {
+    const finalStatus =
+      newStatus === "default"
+        ? selected.defaultStatus
+        : "delayed";
+
+    const updatedFlights = flights.map(f =>
+      f.id === selected.id
+        ? { ...f, status: finalStatus }
+        : f
+    );
+
+    setFlights(updatedFlights);
+
+    localStorage.setItem(
+      "flights",
+      JSON.stringify(updatedFlights)
+    );
+
+    closeModal();
+  };
 
   const statusUI = (status: string) => {
     if (status === "departed")
@@ -109,7 +146,6 @@ export default function FlightsPage() {
               <th className="p-3 text-left">ETD</th>
               <th className="p-3 text-left">ETA</th>
               <th className="p-3 text-left">Status</th>
-             
             </tr>
           </thead>
 
@@ -122,14 +158,14 @@ export default function FlightsPage() {
                 <td className="p-3">{f.etd}</td>
                 <td className="p-3">{f.eta}</td>
                 <td className="p-3">{statusUI(f.status)}</td>
-                
+
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-     
+
 
     </div>
   );

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Package } from "lucide-react";
+import Image from "next/image";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -38,10 +38,12 @@ export default function LoginPage() {
       <div className="mb-6 flex items-center gap-4">
 
         {/* ICON TANPA LATAR */}
-        <Package
-          size={64}
-          className="text-blue-700"
-          strokeWidth={2.2}
+        <Image
+          src="/logo siweb biru.png"
+          alt="Logo ExpressAir"
+          width={80}
+          height={80}
+          className="object-contain"
         />
 
         {/* TEXT */}

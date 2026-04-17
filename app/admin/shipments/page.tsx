@@ -7,7 +7,18 @@ import { Plus, X, Trash2, Search, Filter, Eye, Pencil } from "lucide-react";
 export default function ShipmentsPage() {
   const router = useRouter();
 
-  const flights = ["EA-101", "EA-205", "EA-312", "EA-408", "EA-156"];
+  const flights = [
+    "EA-101",
+    "EA-205",
+    "EA-312",
+    "EA-408",
+    "EA-156",
+    "EA-523",
+    "EA-777",
+    "EA-889",
+    "EA-990",
+    "EA-321",
+  ];
 
   const [shipments, setShipments] = useState<any[]>([]);
 
@@ -21,6 +32,8 @@ export default function ShipmentsPage() {
         { id: 1, awb: "AWB001234567", asal: "Jakarta (CGK)", tujuan: "Singapore (SIN)", berat: 25.5, flight: "EA-101", status: "In Transit" },
         { id: 2, awb: "AWB002345678", asal: "Surabaya (SUB)", tujuan: "Bangkok (BKK)", berat: 18.2, flight: "EA-205", status: "Received" },
         { id: 3, awb: "AWB003456789", asal: "Bali (DPS)", tujuan: "Tokyo (NRT)", berat: 32.8, flight: "EA-312", status: "Delivered" },
+        { id: 4, awb: "AWB003456789", asal: "Jakarta (CGK)", tujuan: "Hong Kong (HKG)", berat: 100.5, flight: "EA-408", status: "In Transit" },
+        { id: 5, awb: "AWB003456789", asal: "Medan (KNO)", tujuan: "Singapore (SIN)", berat: 32.8, flight: "EA-321", status: "Delivered" },
       ];
 
       setShipments(initial);
@@ -31,6 +44,7 @@ export default function ShipmentsPage() {
   const [open, setOpen] = useState(false);
   const [editData, setEditData] = useState<any>(null);
   const [newStatus, setNewStatus] = useState("");
+  const [deleteData, setDeleteData] = useState<any>(null);
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -191,12 +205,7 @@ export default function ShipmentsPage() {
                     <Trash2
                       className="text-red-600 cursor-pointer"
                       size={18}
-                      onClick={() => {
-                        const updated = shipments.filter(item => item.id !== s.id);
-
-                        setShipments(updated);
-                        localStorage.setItem("shipments", JSON.stringify(updated));
-                      }}
+                      onClick={() => setDeleteData(s)}
                     />
 
                   </div>
@@ -422,6 +431,50 @@ export default function ShipmentsPage() {
                 </button>
               </div>
 
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {deleteData && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center">
+          <div className="bg-white w-[500px] rounded-xl p-6">
+
+            <h2 className="text-2xl font-semibold mb-6">
+              Apakah anda yakin ingin menghapus data shipments ini?
+            </h2>
+
+            <p className="text-gray-600 text-1xl mb-8">
+              {deleteData.awb}
+            </p>
+
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={() => setDeleteData(null)}
+                className="border py-3 rounded-xl"
+              >
+                Batal
+              </button>
+
+              <button
+                onClick={() => {
+                  const updated = shipments.filter(
+                    item => item.id !== deleteData.id
+                  );
+
+                  setShipments(updated);
+                  localStorage.setItem(
+                    "shipments",
+                    JSON.stringify(updated)
+                  );
+
+                  setDeleteData(null);
+                }}
+                className="bg-blue-700 text-white py-3 rounded-xl"
+              >
+                Hapus
+              </button>
             </div>
 
           </div>
