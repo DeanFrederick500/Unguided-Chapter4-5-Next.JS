@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   CheckCircle,
   AlertTriangle,
@@ -23,13 +23,17 @@ export default function FlightsPage() {
     { id: 10, flight: "EA-321", asal: "Medan (KNO)", tujuan: "Singapore (SIN)", etd: "12:00", eta: "13:45", status: "departed", defaultStatus: "departed" },
   ];
 
-  const [flights, setFlights] = useState(() => {
-    const saved = localStorage.getItem("flights");
-    return saved ? JSON.parse(saved) : defaultFlights;
-  });
+  const [flights, setFlights] = useState(defaultFlights);
 
   const [selected, setSelected] = useState<any>(null);
   const [newStatus, setNewStatus] = useState("default");
+  useEffect(() => {
+    const saved = localStorage.getItem("flights");
+
+    if (saved) {
+      setFlights(JSON.parse(saved));
+    }
+  }, []);
 
 
   const totalOnTime = flights.filter(f => f.status === "on-time").length;
