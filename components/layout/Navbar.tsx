@@ -17,8 +17,7 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 w-full px-8 py-6 flex justify-between items-center z-50 transition duration-300
-      ${
+      className={`fixed top-0 left-0 w-full px-8 py-6 flex justify-between items-center z-50 transition duration-300 ${
         scrolled
           ? "bg-white/80 backdrop-blur-md shadow text-darkblue"
           : "bg-blue-800 text-white"
@@ -35,17 +34,17 @@ export default function Navbar() {
       </div>
 
       <div className="flex gap-6 text-sm">
-        <a href="#Hero" className="relative group">
+        <a href="/#Hero" className="relative group">
           BERANDA
           <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-current transition-all group-hover:w-full"></span>
         </a>
 
-        <a href="#TentangKami" className="relative group">
+        <a href="/#TentangKami" className="relative group">
           TENTANG KAMI
           <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-current transition-all group-hover:w-full"></span>
         </a>
 
-        <a href="#Service" className="relative group">
+        <a href="/#Service" className="relative group">
           LAYANAN
           <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-current transition-all group-hover:w-full"></span>
         </a>

@@ -1,183 +1,257 @@
 "use client";
 
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Package, Check } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ArrowLeft, Check } from "lucide-react";
 
 export default function DetailShipment() {
+  const params = useParams();
+  const router = useRouter();
 
-    const { awb } = useParams();
-    const router = useRouter();
+  const awb = Array.isArray(params.awb) ? params.awb[0] : params.awb;
 
-    const shipments = JSON.parse(localStorage.getItem("shipments") || "[]");
+  const [shipments, setShipments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchAwb, setSearchAwb] = useState("");
 
-    const data = shipments.find((s: any) => s.awb === awb);
-    if (!data) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="bg-gray-100 px-8 py-6 rounded-xl shadow text-center">
-                    <h2 className="text-2xl font-semibold text-gray-700">
-                        Mohon maaf Data {awb} tidak ditemukan
-                    </h2>
+  useEffect(() => {
+    const saved = localStorage.getItem("shipments");
 
-                    <p className="text-gray-500 mt-2">
-                        Silakan periksa kembali nomor AWB yang Anda masukkan
-                    </p>
-                </div>
-            </div>
-        );
+    if (saved) {
+      setShipments(JSON.parse(saved));
     }
 
-    const steps = [
-        "Received",
-        "Sortation",
-        "Loaded to Aircraft",
-        "Departed",
-        "Arrived"
-    ];
+    setSearchAwb(awb || "");
+    setLoading(false);
+  }, [awb]);
 
-    const statusMap: any = {
-        "Received": 0,
-        "In Transit": 3,
-        "Delivered": 4,
-    };
+  const data = shipments.find((s: any) => s.awb === awb);
 
-    const currentIndex = statusMap[data.status] ?? 0;
+  const handleSearch = () => {
+    if (!searchAwb.trim()) return;
 
-    return (
-        <div>
+    router.push(`/tracking/${searchAwb}`);
+  };
 
-            {/* BACK */}
-            <button
-                onClick={() => router.push("/")}
-                className="mb-4 flex items-center gap-2 text-blue-600 hover:text-blue-800 transition font-medium"
-            >
-                <ArrowLeft size={18} />
-                Kembali ke Beranda
-            </button>
+  const steps = [
+    "Received",
+    "Sortation",
+    "Loaded",
+    "Departed",
+    "Arrived",
+  ];
 
-            {/* DETAIL */}
-            <div className="bg-white p-6 rounded-xl shadow mb-6">
-                <div className="flex items-center gap-3 mb-4">
-                    <div className="text-blue-600 p-2 rounded-lg">
-                        <Package size={25} />
-                    </div>
-                    <h2 className="font-semibold text-lg">Tracking Shipment</h2>
-                </div>
+  const statusMap: any = {
+    "Received": 0,
+    "In Transit": 3,
+    "Delivered": 4,
+  };
 
-                <div className="grid grid-cols-3 gap-4 text-sm">
+  const currentIndex = data ? statusMap[data.status] ?? 0 : 0;
 
-                    <div>
-                        <p className="text-gray-400">Nomor AWB</p>
-                        <p className="font-semibold">{data.awb}</p>
-                    </div>
+  const trackingInfo = data
+    ? [
+      {
+        lokasi: `${data.asal}`,
+        waktu: "05 April 2026 pukul 08.30",
+        desc: "Barang telah diterima oleh petugas di lokasi asal dan siap diproses untuk pengiriman udara.",
+      },
+      {
+        lokasi: `${data.asal}`,
+        waktu: "05 April 2026 pukul 09.15",
+        desc: "Barang sedang melalui proses penyortiran di gudang untuk penyesuaian rute dan jadwal penerbangan.",
+      },
+      {
+        lokasi: `${data.asal} Airport`,
+        waktu: "05 April 2026 pukul 11.45",
+        desc: "Barang telah dimuat ke dalam pesawat dan siap untuk diberangkatkan menuju bandara tujuan.",
+      },
+      {
+        lokasi: `${data.asal} Airport`,
+        waktu: "05 April 2026 pukul 13.20",
+        desc: "Pesawat yang membawa kargo telah diberangkatkan dari bandara asal menuju bandara tujuan.",
+      },
+      {
+        lokasi: `${data.tujuan} Airport`,
+        waktu: "05 April 2026 pukul 18.59",
+        desc: "Pesawat telah tiba di bandara tujuan dan kargo siap untuk proses penyerahan kepada penerima.",
+      },
+    ]
+    : [];
 
-                    <div>
-                        <p className="text-gray-400">Berat</p>
-                        <p className="font-semibold">{data.berat} kg</p>
-                    </div>
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
 
-                    <div>
-                        <p className="text-gray-400">No. Penerbangan</p>
-                        <p className="font-semibold">{data.flight}</p>
-                    </div>
+      <main className="bg-gray-50 w-full pt-28 flex-1">
+        <div className="max-w-6xl mx-auto px-6 py-10">
 
-                    <div>
-                        <p className="text-gray-400">Asal</p>
-                        <p className="font-semibold">{data.asal}</p>
-                    </div>
+          <h1 className="text-5xl font-bold text-center text-blue-700 mb-12">
+            Pelacakan Cepat
+          </h1>
 
-                    <div>
-                        <p className="text-gray-400">Tujuan</p>
-                        <p className="font-semibold">{data.tujuan}</p>
-                    </div>
+          {/* SEARCH BOX */}
+          <p className="text-2xl font-semibold text-black mb-5">
+            Nomor Airway Bill :
+          </p>
+          <div className="bg-white rounded-2xl shadow p-4 mb-14 border">
+            <div className="grid grid-cols-[1fr_180px] gap-4">
 
-                    <div>
-                        <p className="text-gray-400">Status Saat Ini</p>
-                        <p className="font-semibold text-blue-600">{data.status}</p>
-                    </div>
+              <input
+                value={searchAwb}
+                onChange={(e) => setSearchAwb(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSearch();
+                }}
+                placeholder="Masukkan nomor AWB"
+                className="border border-gray-400 rounded-lg px-4 h-14 text-lg outline-none focus:border-gray-500"
+              />
 
-                </div>
+              <button
+                onClick={handleSearch}
+                className="bg-blue-700 text-white rounded-lg text-xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl"
+              >
+                CARI
+              </button>
+
             </div>
+          </div>
 
-            {/* TRACKING */}
-            <div className="bg-white p-6 rounded-xl shadow">
-                <h2 className="font-semibold mb-4">Riwayat Tracking</h2>
+          {loading && (
+            <div className="py-32 text-center text-xl font-semibold">
+              Memuat data...
+            </div>
+          )}
 
-                {steps.map((step, i) => {
+          {!loading && !data && (
+            <div className="py-16 flex justify-center">
+              <div className="bg-red-100 px-10 py-6 rounded-2xl shadow text-center flex items-center gap-6">
+
+                <div className="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center text-white text-2xl font-bold">
+                  ✖
+                </div>
+
+                <h2 className="text-2xl font-bold text-red-900">
+                  Nomor Airway Bill Tidak Ditemukan
+                </h2>
+
+              </div>
+            </div>
+          )}
+
+          {!loading && data && (
+            <>
+
+
+              {/* STEP */}
+              <div className="mb-16">
+                <div className="flex items-center justify-between relative">
+
+                  {/* GARIS ABU */}
+                  <div className="absolute top-7 left-[12.5%] right-[12.5%] h-[2px] bg-gray-300"></div>
+
+                  {/* GARIS HIJAU */}
+                  <div
+                    className="absolute top-7 left-[12.5%] h-[2px] bg-emerald-500"
+                    style={{
+                      width: `${(currentIndex / (steps.length - 1)) * 75}%`,
+                    }}
+                  ></div>
+
+                  {steps.map((step, i) => {
                     const done = i <= currentIndex;
 
                     return (
-                        <div key={i} className="flex gap-4 mb-6">
+                      <div
+                        key={i}
+                        className="relative z-10 flex flex-col items-center w-full"
+                      >
+                        <div className="relative">
 
-                            {/* BULAT + GARIS */}
-                            <div className="flex flex-col items-center">
-                                <div className="relative flex items-center justify-center">
+                          <div
+                            className={`w-16 h-16 rounded-full ${done ? "bg-emerald-100" : "bg-gray-200"
+                              }`}
+                          ></div>
 
-                                    {/* LINGKARAN LUAR */}
-                                    <div
-                                        className={`absolute w-8 h-8 rounded-full ${done ? "bg-emerald-100" : "bg-gray-200"
-                                            }`}
-                                    ></div>
-
-                                    {/* LINGKARAN DALAM */}
-                                    <div
-                                        className={`relative z-10 w-5 h-5 flex items-center justify-center rounded-full border-2 ${done
-                                                ? "bg-emerald-100 border-emerald-500"
-                                                : "bg-gray-200 border-gray-400"
-                                            }`}
-                                    >
-                                        {done ? (
-                                            <Check size={12} className="text-emerald-500" />
-                                        ) : (
-                                            <Check size={12} className="text-gray-400" />
-                                        )}
-                                    </div>
-
-                                </div>
-
-                                {i !== steps.length - 1 && (
-                                    <div
-                                        className={`w-[2px] h-12 ${done ? "bg-emerald-500" : "bg-gray-300"
-                                            }`}
-                                    ></div>
-                                )}
-                            </div>
-
-                            {/* TEXT */}
-                            <div>
-                                <p
-                                    className={`font-medium ${done ? "text-black" : "text-gray-600"
-                                        }`}
-                                >
-                                    {step}
-                                </p>
-
-                                <p className="text-sm text-gray-400">
-                                    {done ? (
-                                        <>
-                                            {/* LOKASI */}
-                                            {step === "Received" || step === "Sortation"
-                                                ? `${data.asal} Hub`
-                                                : `${data.tujuan} Airport`}
-                                            <br />
-
-                                            {/* TANGGAL */}
-                                            <span className="text-blue-600">
-                                                05 April 2026 pukul 08.30
-                                            </span>
-                                        </>
-                                    ) : (
-                                        "Menunggu"
-                                    )}
-                                </p>
-                            </div>
+                          <div
+                            className={`absolute inset-0 m-auto w-9 h-9 rounded-full border-2 flex items-center justify-center ${done
+                              ? "border-emerald-500 bg-emerald-100"
+                              : "border-gray-400 bg-gray-200"
+                              }`}
+                          >
+                            <Check
+                              size={18}
+                              className={
+                                done ? "text-emerald-500" : "text-gray-400"
+                              }
+                            />
+                          </div>
 
                         </div>
-                    );
-                })}
 
-            </div>
+                        <p className="mt-4 font-semibold text-lg text-center">
+                          {step}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* TIMELINE */}
+              <div className="space-y-2">
+                {trackingInfo.map((item, i) => {
+                  const done = i <= currentIndex;
+
+                  return (
+                    <div
+                      key={i}
+                      className="grid grid-cols-[220px_50px_1fr] gap-4"
+                    >
+                      <div className="text-right">
+                        <p className="font-medium text-base">{item.lokasi}</p>
+                        <p className="font-medium text-base">{item.waktu}</p>
+                      </div>
+
+                      <div className="flex flex-col items-center gap-2">
+                        {/* BULATAN */}
+                        <div
+                          className={`w-11 h-11 rounded-full flex items-center justify-center ${done ? "bg-emerald-200" : "bg-gray-200"
+                            }`}
+                        >
+                          <Check
+                            size={28}
+                            className={done ? "text-white" : "text-white"}
+                            strokeWidth={3}
+                          />
+                        </div>
+
+                        {/* GARIS PANJANG */}
+                        {i !== trackingInfo.length - 1 && (
+                          <div
+                            className={`w-[2.3px] h-20 ${done ? "bg-emerald-500" : "bg-gray-300"
+                              }`}
+                          ></div>
+                        )}
+                      </div>
+
+                      <div className="pt-1 font-medium text-xl leading-relaxed">
+                        {item.desc}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
 
         </div>
-    );
+      </main>
+
+      <Footer />
+    </div>
+  );
 }
