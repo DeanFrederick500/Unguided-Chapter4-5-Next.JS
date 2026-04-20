@@ -20,8 +20,8 @@ const config: Config = {
           600: "#2F6FEB",
         },
 
-        blueprimary: "#0F3D91",
-        darkblue: "#082ce1",
+        blueprimary: "#1e40af",
+        darkblue: "#193799",
         lightblue: "#dbeafe",
       },
 
