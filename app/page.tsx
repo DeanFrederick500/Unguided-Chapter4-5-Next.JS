@@ -9,6 +9,7 @@ import VisiMisi from "@/components/sections/VisiMisi";
 import AboutUs2 from "@/components/sections/AboutUs2";
 import Service from "@/components/sections/Service";
 import Pengiriman from "@/components/sections/Pengiriman";
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -17,11 +18,7 @@ export default function Home() {
 
       <main className="pt-20">
         <Hero />
-        <AboutUs />
-        <VisiMisi />
         <AboutUs2 />
-        <Service />
-        <Pengiriman />
       </main>
 
       <Footer />

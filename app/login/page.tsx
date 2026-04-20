@@ -62,8 +62,8 @@ export default function LoginPage() {
       {/* CARD LOGIN */}
       <div className="w-full max-w-md bg-white p-8 rounded-xl shadow">
 
-        <h2 className="text-2xl font-semibold mb-6">
-          Login
+        <h2 className="text-2xl font-semibold mb-6 text-center">
+          Welcome to ExpressAir <br />Cargo System
         </h2>
 
         <form onSubmit={handleLogin} className="space-y-4">
@@ -112,7 +112,7 @@ export default function LoginPage() {
         </form>
 
         <div className="mt-6 border-t pt-4 text-center text-sm text-gray-500">
-          <p>Login menggunakan email sesuai role (admin/operator)</p>
+          {/* <p>Login menggunakan email sesuai role (admin/operator)</p> */}
           <p className="mt-2">
             Demo: admin@expressair.com / admin123
           </p>
