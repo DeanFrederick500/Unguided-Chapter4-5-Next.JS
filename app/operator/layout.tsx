@@ -30,7 +30,7 @@ export default function AdminLayout({ children }: any) {
 
       {/* SIDEBAR */}
       <div
-        className={`bg-blue-700 text-white ${open ? "w-64" : "w-20"
+        className={`bg-blueprimary text-white ${open ? "w-64" : "w-20"
           } transition-all duration-300 flex flex-col fixed left-0 top-0 h-full`}
       >
 

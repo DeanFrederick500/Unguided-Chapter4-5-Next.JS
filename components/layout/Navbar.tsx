@@ -34,17 +34,17 @@ export default function Navbar() {
       </div>
 
       <div className="flex gap-6 text-sm">
-        <a href="/#Hero" className="relative group">
+        <a href="/Hero" className="relative group">
           BERANDA
           <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-current transition-all group-hover:w-full"></span>
         </a>
 
-        <a href="/#TentangKami" className="relative group">
+        <a href="/about" className="relative group">
           TENTANG KAMI
           <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-current transition-all group-hover:w-full"></span>
         </a>
 
-        <a href="/#Service" className="relative group">
+        <a href="/service" className="relative group">
           LAYANAN
           <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-current transition-all group-hover:w-full"></span>
         </a>
