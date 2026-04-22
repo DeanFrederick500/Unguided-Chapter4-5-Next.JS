@@ -25,7 +25,7 @@ export async function GET() {
       ON CONFLICT (flight_number) DO NOTHING;
     `
 
-    // 📦 Shipments (pakai subquery biar aman)
+    //  Shipments 
     await sql`
       INSERT INTO shipments (awb, weight, flight_id, origin, destination, status)
       VALUES
@@ -48,7 +48,7 @@ export async function GET() {
       ON CONFLICT (awb) DO NOTHING;
     `
 
-    // 📍 Tracking
+    // Tracking
     await sql`
       INSERT INTO tracking (shipment_id, location, status)
       VALUES
