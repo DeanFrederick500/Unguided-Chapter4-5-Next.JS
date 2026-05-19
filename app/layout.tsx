@@ -11,6 +11,19 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+// Delay 1.5 detik agar loading terlihat
+async function Delay({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  await new Promise((resolve) =>
+    setTimeout(resolve, 1500)
+  );
+
+  return <>{children}</>;
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -20,7 +33,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Suspense fallback={<Loading />}>
-          {children}
+          <Delay>{children}</Delay>
         </Suspense>
       </body>
     </html>
