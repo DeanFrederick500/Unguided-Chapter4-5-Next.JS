@@ -31,9 +31,9 @@ export default function ShipmentsPage() {
       const initial = [
         { id: 1, awb: "AWB001234567", asal: "Jakarta (CGK)", tujuan: "Singapore (SIN)", berat: 25.5, flight: "EA-101", status: "In Transit" },
         { id: 2, awb: "AWB002345678", asal: "Surabaya (SUB)", tujuan: "Bangkok (BKK)", berat: 18.2, flight: "EA-205", status: "Received" },
-        { id: 3, awb: "AWB003456789", asal: "Bali (DPS)", tujuan: "Tokyo (NRT)", berat: 32.8, flight: "EA-312", status: "Delivered" },
-        { id: 4, awb: "AWB003456789", asal: "Jakarta (CGK)", tujuan: "Hong Kong (HKG)", berat: 100.5, flight: "EA-408", status: "In Transit" },
-        { id: 5, awb: "AWB003456789", asal: "Medan (KNO)", tujuan: "Singapore (SIN)", berat: 32.8, flight: "EA-321", status: "Delivered" },
+        { id: 3, awb: "AWB002456789", asal: "Bali (DPS)", tujuan: "Tokyo (NRT)", berat: 32.8, flight: "EA-312", status: "Delivered" },
+        { id: 4, awb: "AWB001456789", asal: "Jakarta (CGK)", tujuan: "Hong Kong (HKG)", berat: 100.5, flight: "EA-408", status: "In Transit" },
+        { id: 5, awb: "AWB004456789", asal: "Medan (KNO)", tujuan: "Singapore (SIN)", berat: 32.8, flight: "EA-321", status: "Delivered" },
       ];
 
       setShipments(initial);
@@ -55,12 +55,19 @@ export default function ShipmentsPage() {
   const [editFlightError, setEditFlightError] = useState("");
 
   const [form, setForm] = useState({
-    awb: "",
     asal: "",
     tujuan: "",
     berat: "",
     flight: "",
   });
+
+  const generateAWB = () => {
+    const randomNumber = Math.floor(
+      100000000 + Math.random() * 900000000
+    );
+
+    return `AWB${randomNumber}`;
+  };
 
   // FILTER
   const filtered = shipments.filter(s => {
@@ -94,6 +101,7 @@ export default function ShipmentsPage() {
 
     const newData = {
       id: Date.now(),
+      awb: generateAWB(),
       ...form,
       berat: Number(form.berat),
       status: "Received",
@@ -105,7 +113,6 @@ export default function ShipmentsPage() {
     setOpen(false);
 
     setForm({
-      awb: "",
       asal: "",
       tujuan: "",
       berat: "",
@@ -178,9 +185,9 @@ export default function ShipmentsPage() {
               <th className="p-3 text-left">Asal</th>
               <th className="p-3 text-left">Tujuan</th>
               <th className="p-3 text-left">Berat</th>
-              <th className="p-3 text-left">Flight</th>
+              <th className="p-3 text-left">No. Penerbangan</th>
               <th className="p-3 text-left">Status</th>
-              <th className="p-3 text-left">Action</th>
+              <th className="p-3 text-left">Aksi</th>
             </tr>
           </thead>
 
@@ -284,16 +291,7 @@ export default function ShipmentsPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
 
-              {/* AWB */}
-              <div>
-                <label className="text-sm">Nomor AWB</label>
-                <input
-                  required
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
-                  value={form.awb}
-                  onChange={(e) => setForm({ ...form, awb: e.target.value })}
-                />
-              </div>
+
 
               {/* ASAL */}
               <div>
@@ -331,7 +329,7 @@ export default function ShipmentsPage() {
 
               {/* FLIGHT */}
               <div>
-                <label className="text-sm">Flight Number</label>
+                <label className="text-sm">No. Penerbangan</label>
                 <input
                   required
                   className={`w-full border rounded-lg px-3 py-2 mt-1 ${flightError ? "border-red-500" : ""}`}
@@ -379,14 +377,7 @@ export default function ShipmentsPage() {
 
             <div className="space-y-4">
 
-              <div>
-                <label className="text-sm">Nomor AWB</label>
-                <input
-                  value={editData.awb}
-                  onChange={(e) => setEditData({ ...editData, awb: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2"
-                />
-              </div>
+              
 
               <div>
                 <label className="text-sm">Asal</label>
@@ -417,7 +408,7 @@ export default function ShipmentsPage() {
               </div>
 
               <div>
-                <label className="text-sm">Flight Number</label>
+                <label className="text-sm">No. Penerbangan</label>
                 <input
                   value={editData.flight}
                   onChange={(e) => {

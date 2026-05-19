@@ -147,7 +147,7 @@ export default function FlightsPage() {
         <table className="w-full text-sm">
           <thead className="bg-gray-100 text-gray-500">
             <tr>
-              <th className="p-3 text-left">Flight</th>
+              <th className="p-3 text-left">No. Penerbangan</th>
               <th className="p-3 text-left">Asal</th>
               <th className="p-3 text-left">Tujuan</th>
               <th className="p-3 text-left">ETD</th>
