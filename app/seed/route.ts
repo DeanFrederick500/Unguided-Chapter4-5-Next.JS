@@ -23,21 +23,142 @@ export async function GET() {
 
     // 📦 Shipments
     await sql`
-      INSERT INTO shipments (awb, weight, flight_id, origin, destination, status)
+      INSERT INTO shipments 
+      (
+        awb,
+        weight,
+        shipping_cost,
+        tax,
+        total_cost,
+        flight_id,
+        origin,
+        destination,
+        status
+      )
       VALUES
-      ('AWB001234567',25.5,(SELECT id FROM flights WHERE flight_number='EA-101'),'Jakarta (CGK)','Singapore (SIN)','in transit'),
-      ('AWB002345678',18.2,(SELECT id FROM flights WHERE flight_number='EA-205'),'Surabaya (SUB)','Bangkok (BKK)','received'),
-      ('AWB003456789',32.8,(SELECT id FROM flights WHERE flight_number='EA-312'),'Bali (DPS)','Tokyo (NRT)','delivered'),
-      ('AWB004567890',100.5,(SELECT id FROM flights WHERE flight_number='EA-408'),'Jakarta (CGK)','Hong Kong (HKG)','in transit'),
-      ('AWB005678901',12.4,(SELECT id FROM flights WHERE flight_number='EA-156'),'Medan (KNO)','Kuala Lumpur (KUL)','received'),
-      ('AWB006789012',45.7,(SELECT id FROM flights WHERE flight_number='EA-523'),'Jakarta (CGK)','Sydney (SYD)','in transit'),
-      ('AWB007890123',28.9,(SELECT id FROM flights WHERE flight_number='EA-777'),'Bali (DPS)','Dubai (DXB)','received'),
-      ('AWB008901234',16.3,(SELECT id FROM flights WHERE flight_number='EA-889'),'Surabaya (SUB)','Seoul (ICN)','in transit'),
-      ('AWB009012345',22.6,(SELECT id FROM flights WHERE flight_number='EA-990'),'Jakarta (CGK)','Tokyo (NRT)','received'),
-      ('AWB010123456',30.1,(SELECT id FROM flights WHERE flight_number='EA-321'),'Medan (KNO)','Singapore (SIN)','delivered')
+
+      (
+        'AWB001234567',
+        25.5,
+        1500000,
+        150000,
+        1650000,
+        (SELECT id FROM flights WHERE flight_number='EA-101'),
+        'Jakarta (CGK)',
+        'Singapore (SIN)',
+        'in transit'
+      ),
+
+      (
+        'AWB002345678',
+        18.2,
+        1200000,
+        120000,
+        1320000,
+        (SELECT id FROM flights WHERE flight_number='EA-205'),
+        'Surabaya (SUB)',
+        'Bangkok (BKK)',
+        'received'
+      ),
+
+      (
+        'AWB003456789',
+        32.8,
+        2500000,
+        250000,
+        2750000,
+        (SELECT id FROM flights WHERE flight_number='EA-312'),
+        'Bali (DPS)',
+        'Tokyo (NRT)',
+        'delivered'
+      ),
+
+      (
+        'AWB004567890',
+        100.5,
+        5000000,
+        500000,
+        5500000,
+        (SELECT id FROM flights WHERE flight_number='EA-408'),
+        'Jakarta (CGK)',
+        'Hong Kong (HKG)',
+        'in transit'
+      ),
+
+      (
+        'AWB005678901',
+        12.4,
+        900000,
+        90000,
+        990000,
+        (SELECT id FROM flights WHERE flight_number='EA-156'),
+        'Medan (KNO)',
+        'Kuala Lumpur (KUL)',
+        'received'
+      ),
+
+      (
+        'AWB006789012',
+        45.7,
+        4200000,
+        420000,
+        4620000,
+        (SELECT id FROM flights WHERE flight_number='EA-523'),
+        'Jakarta (CGK)',
+        'Sydney (SYD)',
+        'in transit'
+      ),
+
+      (
+        'AWB007890123',
+        28.9,
+        3100000,
+        310000,
+        3410000,
+        (SELECT id FROM flights WHERE flight_number='EA-777'),
+        'Bali (DPS)',
+        'Dubai (DXB)',
+        'received'
+      ),
+
+      (
+        'AWB008901234',
+        16.3,
+        1800000,
+        180000,
+        1980000,
+        (SELECT id FROM flights WHERE flight_number='EA-889'),
+        'Surabaya (SUB)',
+        'Seoul (ICN)',
+        'in transit'
+      ),
+
+      (
+        'AWB009012345',
+        22.6,
+        2600000,
+        260000,
+        2860000,
+        (SELECT id FROM flights WHERE flight_number='EA-990'),
+        'Jakarta (CGK)',
+        'Tokyo (NRT)',
+        'received'
+      ),
+
+      (
+        'AWB010123456',
+        30.1,
+        1400000,
+        140000,
+        1540000,
+        (SELECT id FROM flights WHERE flight_number='EA-321'),
+        'Medan (KNO)',
+        'Singapore (SIN)',
+        'delivered'
+      )
+
       ON CONFLICT (awb) DO NOTHING;
     `;
-
     // 📍 Tracking
     await sql`
       INSERT INTO tracking (shipment_id, location, status)
