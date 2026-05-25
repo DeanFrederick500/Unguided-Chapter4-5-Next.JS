@@ -30,11 +30,31 @@ export default function ShipmentsPage() {
         const formatted = data.map((item: any) => ({
           id: item.id,
           awb: item.awb,
+
+          tanggal: item.shipping_date,
+
+          pengirim: item.sender_name,
+          penerima: item.receiver_name,
+          telepon: item.phone_number,
+
           asal: item.origin,
           tujuan: item.destination,
+
+          jenisBarang: item.item_type,
+
           berat: item.weight,
+
+          harga: item.shipping_cost,
+
+          kendaraan: item.vehicle_type,
+
+          jenisPengiriman: item.shipping_type,
+
           flight: item.flight_number,
+
           status: item.status,
+
+          deskripsi: item.description,
         }));
 
         setShipments(formatted);
@@ -55,10 +75,19 @@ export default function ShipmentsPage() {
   const [editFlightError, setEditFlightError] = useState("");
 
   const [form, setForm] = useState({
+    tanggal: "",
+    pengirim: "",
+    penerima: "",
+    telepon: "",
     asal: "",
     tujuan: "",
+    jenisBarang: "",
     berat: "",
+    harga: "",
+    kendaraan: "",
+    jenisPengiriman: "",
     flight: "",
+    deskripsi: "",
   });
 
   const generateAWB = () => {
@@ -101,10 +130,19 @@ export default function ShipmentsPage() {
 
     const newData = {
       awb: generateAWB(),
-      berat: Number(form.berat),
-      asal: form.asal,
-      tujuan: form.tujuan,
-      flight: form.flight,
+      shipping_date: form.tanggal,
+      sender_name: form.pengirim,
+      receiver_name: form.penerima,
+      phone_number: form.telepon,
+      origin: form.asal,
+      destination: form.tujuan,
+      item_type: form.jenisBarang,
+      weight: Number(form.berat),
+      shipping_cost: Number(form.harga),
+      vehicle_type: form.kendaraan,
+      shipping_type: form.jenisPengiriman,
+      flight_number: form.flight,
+      description: form.deskripsi,
       status: "Received",
     };
 
@@ -124,11 +162,20 @@ export default function ShipmentsPage() {
       const formatted = data.map((item: any) => ({
         id: item.id,
         awb: item.awb,
+        tanggal: item.shipping_date,
+        pengirim: item.sender_name,
+        penerima: item.receiver_name,
+        telepon: item.phone_number,
         asal: item.origin,
         tujuan: item.destination,
+        jenisBarang: item.item_type,
         berat: item.weight,
+        harga: item.shipping_cost,
+        kendaraan: item.vehicle_type,
+        jenisPengiriman: item.shipping_type,
         flight: item.flight_number,
         status: item.status,
+        deskripsi: item.description,
       }));
 
       setShipments(formatted);
@@ -136,10 +183,28 @@ export default function ShipmentsPage() {
       setOpen(false);
 
       setForm({
+        tanggal: "",
+
+        pengirim: "",
+        penerima: "",
+        telepon: "",
+
         asal: "",
         tujuan: "",
+
+        jenisBarang: "",
+
         berat: "",
+
+        harga: "",
+
+        kendaraan: "",
+
+        jenisPengiriman: "",
+
         flight: "",
+
+        deskripsi: "",
       });
 
     } else {
@@ -211,11 +276,20 @@ export default function ShipmentsPage() {
           <thead className="bg-gray-100 text-gray-500">
             <tr>
               <th className="p-3 text-left">AWB</th>
+              <th className="p-3 text-left">Tanggal</th>
+              <th className="p-3 text-left">Pengirim</th>
+              <th className="p-3 text-left">Penerima</th>
+              <th className="p-3 text-left">Telepon</th>
               <th className="p-3 text-left">Asal</th>
               <th className="p-3 text-left">Tujuan</th>
+              <th className="p-3 text-left">Jenis Barang</th>
               <th className="p-3 text-left">Berat</th>
+              <th className="p-3 text-left">Harga</th>
+              <th className="p-3 text-left">Jenis Kendaraan</th>
+              <th className="p-3 text-left">Jenis Pengiriman</th>
               <th className="p-3 text-left">No. Penerbangan</th>
               <th className="p-3 text-left">Status</th>
+              <th className="p-3 text-left">Deskripsi</th>
               <th className="p-3 text-left">Aksi</th>
             </tr>
           </thead>
@@ -224,9 +298,29 @@ export default function ShipmentsPage() {
             {paginatedData.map((s) => (
               <tr key={s.id} className="border-t">
                 <td className="p-3 text-blue-600">{s.awb}</td>
+
+                <td className="p-3">{s.tanggal}</td>
+
+                <td className="p-3">{s.pengirim}</td>
+
+                <td className="p-3">{s.penerima}</td>
+
+                <td className="p-3">{s.telepon}</td>
+
                 <td className="p-3">{s.asal}</td>
+
                 <td className="p-3">{s.tujuan}</td>
+
+                <td className="p-3">{s.jenisBarang}</td>
+
                 <td className="p-3">{s.berat} kg</td>
+
+                <td className="p-3">Rp {s.harga}</td>
+
+                <td className="p-3">{s.kendaraan}</td>
+
+                <td className="p-3">{s.jenisPengiriman}</td>
+
                 <td className="p-3">{s.flight}</td>
 
                 <td className="p-3">
@@ -234,6 +328,8 @@ export default function ShipmentsPage() {
                   {s.status === "Received" && <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs">Received</span>}
                   {s.status === "Delivered" && <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs">Delivered</span>}
                 </td>
+
+                <td className="p-3">{s.deskripsi}</td>
 
                 <td className="p-3">
                   <div className="flex items-center gap-3">
@@ -320,7 +416,127 @@ export default function ShipmentsPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
 
+              {/* TANGGAL KIRIM */}
+              <div>
+                <label className="text-sm">Tanggal Kirim</label>
 
+                <input
+                  required
+                  type="date"
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  value={form.tanggal}
+                  onChange={(e) =>
+                    setForm({ ...form, tanggal: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* PENGIRIM */}
+              <div>
+                <label className="text-sm">Nama Pengirim</label>
+
+                <input
+                  required
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  value={form.pengirim}
+                  onChange={(e) =>
+                    setForm({ ...form, pengirim: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* PENERIMA */}
+              <div>
+                <label className="text-sm">Nama Penerima</label>
+
+                <input
+                  required
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  value={form.penerima}
+                  onChange={(e) =>
+                    setForm({ ...form, penerima: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* TELEPON */}
+              <div>
+                <label className="text-sm">No Telepon</label>
+
+                <input
+                  required
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  value={form.telepon}
+                  onChange={(e) =>
+                    setForm({ ...form, telepon: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* JENIS BARANG */}
+              <div>
+                <label className="text-sm">Jenis Barang</label>
+
+                <input
+                  required
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  value={form.jenisBarang}
+                  onChange={(e) =>
+                    setForm({ ...form, jenisBarang: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* HARGA */}
+              <div>
+                <label className="text-sm">Harga Pengiriman</label>
+
+                <input
+                  required
+                  type="number"
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  value={form.harga}
+                  onChange={(e) =>
+                    setForm({ ...form, harga: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* KENDARAAN */}
+              <div>
+                <label className="text-sm">Jenis Kendaraan</label>
+
+                <input
+                  required
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  value={form.kendaraan}
+                  onChange={(e) =>
+                    setForm({ ...form, kendaraan: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* JENIS PENGIRIMAN */}
+              <div>
+                <label className="text-sm">Jenis Pengiriman</label>
+
+                <select
+                  required
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  value={form.jenisPengiriman}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      jenisPengiriman: e.target.value,
+                    })
+                  }
+                >
+                  <option value="">Pilih</option>
+                  <option value="Biasa">Biasa</option>
+                  <option value="Cepat">Cepat</option>
+                  <option value="VVIP">VVIP</option>
+                </select>
+              </div>
 
               {/* ASAL */}
               <div>
@@ -376,6 +592,21 @@ export default function ShipmentsPage() {
                 )}
               </div>
 
+
+              {/* DESKRIPSI */}
+              <div>
+                <label className="text-sm">Deskripsi Barang</label>
+
+                <textarea
+                  required
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  value={form.deskripsi}
+                  onChange={(e) =>
+                    setForm({ ...form, deskripsi: e.target.value })
+                  }
+                />
+              </div>
+
               {/* BUTTON */}
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <button type="button" onClick={() => setOpen(false)} className="border py-2 rounded-lg">
@@ -406,6 +637,73 @@ export default function ShipmentsPage() {
 
             <div className="space-y-4">
 
+              {/* JENIS BARANG */}
+              <div>
+                <label className="text-sm">Jenis Barang</label>
+
+                <input
+                  value={editData.jenisBarang || ""}
+                  onChange={(e) =>
+                    setEditData({
+                      ...editData,
+                      jenisBarang: e.target.value,
+                    })
+                  }
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+
+              {/* JENIS KENDARAAN */}
+              <div>
+                <label className="text-sm">Jenis Kendaraan</label>
+
+                <input
+                  value={editData.kendaraan || ""}
+                  onChange={(e) =>
+                    setEditData({
+                      ...editData,
+                      kendaraan: e.target.value,
+                    })
+                  }
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+
+              {/* JENIS PENGIRIMAN */}
+              <div>
+                <label className="text-sm">Jenis Pengiriman</label>
+
+                <select
+                  value={editData.jenisPengiriman}
+                  onChange={(e) =>
+                    setEditData({
+                      ...editData,
+                      jenisPengiriman: e.target.value,
+                    })
+                  }
+                  className="w-full border rounded-lg px-3 py-2"
+                >
+                  <option value="Biasa">Biasa</option>
+                  <option value="Cepat">Cepat</option>
+                  <option value="VVIP">VVIP</option>
+                </select>
+              </div>
+
+              {/* DESKRIPSI */}
+              <div>
+                <label className="text-sm">Deskripsi Barang</label>
+
+                <textarea
+                  value={editData.deskripsi}
+                  onChange={(e) =>
+                    setEditData({
+                      ...editData,
+                      deskripsi: e.target.value,
+                    })
+                  }
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
 
 
               <div>
@@ -492,10 +790,22 @@ export default function ShipmentsPage() {
                       },
                       body: JSON.stringify({
                         id: editData.id,
+
                         asal: editData.asal,
                         tujuan: editData.tujuan,
+
+                        jenisBarang: editData.jenisBarang,
+
+                        kendaraan: editData.kendaraan,
+
+                        jenisPengiriman: editData.jenisPengiriman,
+
+                        deskripsi: editData.deskripsi,
+
                         berat: Number(editData.berat),
+
                         flight: editData.flight,
+
                         status: editData.status,
                       }),
                     });
@@ -508,11 +818,31 @@ export default function ShipmentsPage() {
                       const formatted = data.map((item: any) => ({
                         id: item.id,
                         awb: item.awb,
+
+                        tanggal: item.shipping_date,
+
+                        pengirim: item.sender_name,
+                        penerima: item.receiver_name,
+                        telepon: item.phone_number,
+
                         asal: item.origin,
                         tujuan: item.destination,
+
+                        jenisBarang: item.item_type,
+
                         berat: item.weight,
+
+                        harga: item.shipping_cost,
+
+                        kendaraan: item.vehicle_type,
+
+                        jenisPengiriman: item.shipping_type,
+
                         flight: item.flight_number,
+
                         status: item.status,
+
+                        deskripsi: item.description,
                       }));
 
                       setShipments(formatted);
@@ -578,11 +908,31 @@ export default function ShipmentsPage() {
                     const formatted = data.map((item: any) => ({
                       id: item.id,
                       awb: item.awb,
+
+                      tanggal: item.shipping_date,
+
+                      pengirim: item.sender_name,
+                      penerima: item.receiver_name,
+                      telepon: item.phone_number,
+
                       asal: item.origin,
                       tujuan: item.destination,
+
+                      jenisBarang: item.item_type,
+
                       berat: item.weight,
+
+                      harga: item.shipping_cost,
+
+                      kendaraan: item.vehicle_type,
+
+                      jenisPengiriman: item.shipping_type,
+
                       flight: item.flight_number,
+
                       status: item.status,
+
+                      deskripsi: item.description,
                     }));
 
                     setShipments(formatted);
