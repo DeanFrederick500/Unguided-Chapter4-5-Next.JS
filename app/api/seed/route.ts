@@ -516,30 +516,29 @@ export async function GET() {
       )
       VALUES
 
-      (1, 'Medical Equipment', 'Healthcare Cargo', 'Peralatan medis rumah sakit', 3, 45.0, 'fragile', NOW()),
-      (1, 'Vaccines Container', 'Pharmaceutical Cargo', 'Kontainer vaksin suhu dingin', 2, 60.0, 'priority', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000001'), 'Medical Equipment', 'Healthcare Cargo', 'Peralatan medis rumah sakit', 3, 45.0, 'fragile', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000001'), 'Vaccines Container', 'Pharmaceutical Cargo', 'Kontainer vaksin suhu dingin', 2, 60.0, 'priority', NOW()),
 
-      (2, 'Electronic Components', 'Electronic Cargo', 'Komponen server dan komputer', 15, 180.0, 'safe', NOW()),
-      (2, 'Networking Devices', 'Technology Cargo', 'Perangkat jaringan perusahaan', 10, 140.0, 'safe', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000002'), 'Electronic Components', 'Electronic Cargo', 'Komponen server dan komputer', 15, 180.0, 'safe', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000002'), 'Networking Devices', 'Technology Cargo', 'Perangkat jaringan perusahaan', 10, 140.0, 'safe', NOW()),
 
-      (3, 'Luxury Watches', 'Luxury Cargo', 'Jam tangan premium internasional', 8, 25.0, 'high-security', NOW()),
-      (3, 'Jewelry Package', 'Valuable Cargo', 'Perhiasan emas dan berlian', 5, 15.0, 'high-security', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000003'), 'Luxury Watches', 'Luxury Cargo', 'Jam tangan premium internasional', 8, 25.0, 'high-security', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000003'), 'Jewelry Package', 'Valuable Cargo', 'Perhiasan emas dan berlian', 5, 15.0, 'high-security', NOW()),
 
-      (4, 'Industrial Machine Parts', 'Industrial Cargo', 'Suku cadang mesin industri', 4, 950.0, 'heavy', NOW()),
-      (4, 'Factory Equipment', 'Heavy Equipment Cargo', 'Peralatan pabrik', 2, 1200.0, 'heavy', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000004'), 'Industrial Machine Parts', 'Industrial Cargo', 'Suku cadang mesin industri', 4, 950.0, 'heavy', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000004'), 'Factory Equipment', 'Heavy Equipment Cargo', 'Peralatan pabrik', 2, 1200.0, 'heavy', NOW()),
 
-      (5, 'Frozen Seafood', 'Perishable Cargo', 'Makanan laut beku ekspor', 25, 400.0, 'cold-storage', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000005'), 'Frozen Seafood', 'Perishable Cargo', 'Makanan laut beku ekspor', 25, 400.0, 'cold-storage', NOW()),
 
-      (6, 'Official Documents', 'Document Cargo', 'Dokumen legal perusahaan', 5, 8.0, 'priority', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000006'), 'Official Documents', 'Document Cargo', 'Dokumen legal perusahaan', 5, 8.0, 'priority', NOW()),
 
-      (7, 'Aircraft Turbine Parts', 'Aviation Cargo', 'Komponen mesin pesawat', 3, 1500.0, 'heavy', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000007'), 'Aircraft Turbine Parts', 'Aviation Cargo', 'Komponen mesin pesawat', 3, 1500.0, 'heavy', NOW()),
 
-      (8, 'Premium Fashion Products', 'Fashion Cargo', 'Produk fashion premium', 20, 120.0, 'safe', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000008'), 'Premium Fashion Products', 'Fashion Cargo', 'Produk fashion premium', 20, 120.0, 'safe', NOW()),
 
-      (9, 'Automotive Batteries', 'Hazardous Cargo', 'Baterai kendaraan listrik', 10, 600.0, 'restricted', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000009'), 'Automotive Batteries', 'Hazardous Cargo', 'Baterai kendaraan listrik', 10, 600.0, 'restricted', NOW()),
 
-      (10, 'Urgent Medical Supplies', 'Emergency Cargo', 'Logistik medis darurat', 12, 95.0, 'priority', NOW())
-      ON CONFLICT DO NOTHING;
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000010'), 'Urgent Medical Supplies', 'Emergency Cargo', 'Logistik medis darurat', 12, 95.0, 'priority', NOW());
     `;
 
     // =====================================================
@@ -560,17 +559,16 @@ export async function GET() {
       )
       VALUES
 
-      (1, 150000, 5000, 155000, 'Transfer Bank', '2026-05-01', 'paid', NOW()),
-      (2, 200000, 5000, 205000, 'QRIS', '2026-05-02', 'paid', NOW()),
-      (3, 3500000, 10000, 3510000, 'Credit Card', '2026-05-03', 'paid', NOW()),
-      (4, 5000000, 10000, 5010000, 'Transfer Bank', '2026-05-04', 'paid', NOW()),
-      (5, 750000, 5000, 755000, 'Cash', '2026-05-05', 'pending', NOW()),
-      (6, 100000, 5000, 105000, 'QRIS', '2026-05-06', 'paid', NOW()),
-      (7, 6500000, 10000, 6510000, 'Transfer Bank', '2026-05-07', 'paid', NOW()),
-      (8, 2200000, 10000, 2210000, 'Credit Card', '2026-05-08', 'paid', NOW()),
-      (9, 180000, 5000, 185000, 'Cash', '2026-05-09', 'pending', NOW()),
-      (10, 120000, 5000, 125000, 'QRIS', '2026-05-10', 'paid', NOW())
-      ON CONFLICT DO NOTHING;
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000001'), 150000, 5000, 155000, 'Transfer Bank', '2026-05-01', 'paid', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000002'), 200000, 5000, 205000, 'QRIS', '2026-05-02', 'paid', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000003'), 3500000, 10000, 3510000, 'Credit Card', '2026-05-03', 'paid', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000004'), 5000000, 10000, 5010000, 'Transfer Bank', '2026-05-04', 'paid', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000005'), 750000, 5000, 755000, 'Cash', '2026-05-05', 'pending', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000006'), 100000, 5000, 105000, 'QRIS', '2026-05-06', 'paid', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000007'), 6500000, 10000, 6510000, 'Transfer Bank', '2026-05-07', 'paid', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000008'), 2200000, 10000, 2210000, 'Credit Card', '2026-05-08', 'paid', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000009'), 180000, 5000, 185000, 'Cash', '2026-05-09', 'pending', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000010'), 120000, 5000, 125000, 'QRIS', '2026-05-10', 'paid', NOW());
     `;
 
     // =====================================================
@@ -588,31 +586,30 @@ export async function GET() {
       )
       VALUES
 
-      (1, 'Soekarno Hatta Cargo Terminal', 'Cargo Received', 'Cargo diterima di terminal cargo', NOW()),
-      (1, 'Husein Sastranegara Airport', 'Completed', 'Cargo berhasil diterima penerima', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000001'), 'Soekarno Hatta Cargo Terminal', 'Cargo Received', 'Cargo diterima di terminal cargo', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000001'), 'Husein Sastranegara Airport', 'Completed', 'Cargo berhasil diterima penerima', NOW()),
 
-      (2, 'Juanda Cargo Warehouse', 'Cargo Checked', 'Pemeriksaan cargo selesai', NOW()),
-      (2, 'In Air Transit', 'In Air Transit', 'Cargo sedang dalam penerbangan', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000002'), 'Juanda Cargo Warehouse', 'Cargo Checked', 'Pemeriksaan cargo selesai', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000002'), 'In Air Transit', 'In Air Transit', 'Cargo sedang dalam penerbangan', NOW()),
 
-      (3, 'Soekarno Hatta International Airport', 'Departed', 'Pesawat cargo telah berangkat', NOW()),
-      (3, 'Singapore Changi Cargo Terminal', 'Completed', 'Cargo telah diterima penerima', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000003'), 'Soekarno Hatta International Airport', 'Departed', 'Pesawat cargo telah berangkat', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000003'), 'Singapore Changi Cargo Terminal', 'Completed', 'Cargo telah diterima penerima', NOW()),
 
-      (4, 'Ngurah Rai International Airport', 'In Air Transit', 'Cargo menuju Tokyo', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000004'), 'Ngurah Rai International Airport', 'In Air Transit', 'Cargo menuju Tokyo', NOW()),
 
-      (5, 'Kualanamu Cargo Terminal', 'Awaiting Departure', 'Menunggu jadwal keberangkatan', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000005'), 'Kualanamu Cargo Terminal', 'Awaiting Departure', 'Menunggu jadwal keberangkatan', NOW()),
 
-      (6, 'Yogyakarta International Airport', 'Cargo Received', 'Cargo diterima di bandara', NOW()),
-      (6, 'Jenderal Ahmad Yani Airport', 'Completed', 'Cargo selesai dikirim', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000006'), 'Yogyakarta International Airport', 'Cargo Received', 'Cargo diterima di bandara', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000006'), 'Jenderal Ahmad Yani Airport', 'Completed', 'Cargo selesai dikirim', NOW()),
 
-      (7, 'Soekarno Hatta International Airport', 'Loaded to Aircraft', 'Cargo telah dimuat ke pesawat', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000007'), 'Soekarno Hatta International Airport', 'Loaded to Aircraft', 'Cargo telah dimuat ke pesawat', NOW()),
 
-      (8, 'Suvarnabhumi Cargo Terminal', 'Completed', 'Cargo telah diterima', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000008'), 'Suvarnabhumi Cargo Terminal', 'Completed', 'Cargo telah diterima', NOW()),
 
-      (9, 'Husein Sastranegara Cargo Area', 'Cargo Checked', 'Cargo sedang proses pemeriksaan', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000009'), 'Husein Sastranegara Cargo Area', 'Cargo Checked', 'Cargo sedang proses pemeriksaan', NOW()),
 
-      (10, 'Adi Soemarmo International Airport', 'Cargo Received', 'Cargo diterima petugas', NOW()),
-      (10, 'In Air Transit', 'In Air Transit', 'Cargo sedang dalam penerbangan', NOW())
-      ON CONFLICT DO NOTHING;
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000010'), 'Adi Soemarmo International Airport', 'Cargo Received', 'Cargo diterima petugas', NOW()),
+      ((SELECT id FROM shipments WHERE awb_number = 'AWB00000010'), 'In Air Transit', 'In Air Transit', 'Cargo sedang dalam penerbangan', NOW());
     `;
 
     return Response.json({
