@@ -123,27 +123,32 @@ export default function AdminPage() {
   };
 
   // =====================================================
-  // DUMMY CHART
+  // DYNAMIC CHART
   // =====================================================
 
-  const chartData = [
-    {
-      name: "Small",
-      value: 4,
-    },
-    {
-      name: "Medium",
-      value: 6,
-    },
-    {
-      name: "Large",
-      value: 3,
-    },
-    {
-      name: "Heavy",
-      value: 2,
-    },
-  ];
+  const shippingTypesCount = dataDashboard.reduce((acc: any, curr: any) => {
+    const type = curr.shipping_type || "Unknown";
+    acc[type] = (acc[type] || 0) + 1;
+    return acc;
+  }, {});
+
+  const chartData = Object.keys(shippingTypesCount).map((key) => ({
+    name: key,
+    value: shippingTypesCount[key],
+  }));
+
+  // =====================================================
+  // RECENT ACTIVITY DATA
+  // =====================================================
+
+  const recentActivities = [...dataDashboard]
+    .sort((a, b) => {
+      if (a.shipment_date && b.shipment_date) {
+        return new Date(b.shipment_date).getTime() - new Date(a.shipment_date).getTime();
+      }
+      return (b.id || 0) - (a.id || 0);
+    })
+    .slice(0, 3);
 
   // =====================================================
   // UI
@@ -285,59 +290,25 @@ export default function AdminPage() {
           </h2>
 
           <div className="space-y-4 text-sm">
-            <div className="flex gap-3">
-              <div className="w-[2px] bg-blue-300"></div>
+            {recentActivities.map((item: any, index: number) => (
+              <div key={index} className="flex gap-3">
+                <div className="w-[2px] bg-blue-300"></div>
 
-              <div>
-                <p className="font-medium">
-                  AWB0001
-                </p>
+                <div>
+                  <p className="font-medium">
+                    {item.awb_number}
+                  </p>
 
-                <p className="text-blue-600">
-                  Cargo Received
-                </p>
+                  <p className="text-blue-600">
+                    {item.shipment_status}
+                  </p>
 
-                <p className="text-gray-400 text-xs">
-                  Soekarno Hatta Cargo Terminal
-                </p>
+                  <p className="text-gray-400 text-xs">
+                    {item.origin_city} &rarr; {item.destination_city}
+                  </p>
+                </div>
               </div>
-            </div>
-
-            <div className="flex gap-3">
-              <div className="w-[2px] bg-blue-300"></div>
-
-              <div>
-                <p className="font-medium">
-                  AWB0002
-                </p>
-
-                <p className="text-blue-600">
-                  In Air Transit
-                </p>
-
-                <p className="text-gray-400 text-xs">
-                  Singapore Changi Airport
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <div className="w-[2px] bg-blue-300"></div>
-
-              <div>
-                <p className="font-medium">
-                  AWB0003
-                </p>
-
-                <p className="text-blue-600">
-                  Customs Clearance
-                </p>
-
-                <p className="text-gray-400 text-xs">
-                  Narita International Airport
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
