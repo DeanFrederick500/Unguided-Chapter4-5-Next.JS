@@ -13,62 +13,9 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const awb = url.searchParams.get("awb");
 
-    const baseQuery = sql`
-
-      SELECT
-
-        shipments.id,
-        shipments.awb_number,
-        shipments.shipment_date,
-
-        shipments.sender_name,
-        shipments.receiver_name,
-        shipments.phone_number,
-
-        shipments.origin_city,
-        shipments.destination_city,
-
-        shipments.shipping_type,
-        shipments.shipment_status,
-
-        products.item_name,
-        products.item_type,
-        products.item_description,
-        products.quantity,
-        products.weight,
-        products.item_status,
-
-        transactions.shipping_price,
-        transactions.admin_fee,
-        transactions.total_price,
-        transactions.payment_method,
-        transactions.transaction_status,
-
-        vehicles.vehicle_name,
-        vehicles.vehicle_type,
-        vehicles.vehicle_code,
-
-        flights.flight_number
-
-      FROM shipments
-
-      LEFT JOIN products
-      ON products.shipment_id = shipments.id
-
-      LEFT JOIN transactions
-      ON transactions.shipment_id = shipments.id
-
-      LEFT JOIN vehicles
-      ON vehicles.id = shipments.vehicle_id
-
-      LEFT JOIN flights
-      ON flights.id = shipments.flight_id
-
-      ORDER BY shipments.id DESC
-    `;
-
     const shipments = awb
       ? await sql`
+
           SELECT
 
             shipments.id,
@@ -77,7 +24,9 @@ export async function GET(req: Request) {
 
             shipments.sender_name,
             shipments.receiver_name,
+
             shipments.phone_number,
+            shipments.receiver_phone_number,
 
             shipments.origin_city,
             shipments.destination_city,
@@ -124,6 +73,7 @@ export async function GET(req: Request) {
           ORDER BY shipments.id DESC
         `
       : await sql`
+
           SELECT
 
             shipments.id,
@@ -132,7 +82,9 @@ export async function GET(req: Request) {
 
             shipments.sender_name,
             shipments.receiver_name,
+
             shipments.phone_number,
+            shipments.receiver_phone_number,
 
             shipments.origin_city,
             shipments.destination_city,
@@ -210,7 +162,9 @@ export async function POST(req: Request) {
 
       sender_name,
       receiver_name,
+
       phone_number,
+      receiver_phone_number,
 
       origin_city,
       destination_city,
@@ -297,7 +251,9 @@ export async function POST(req: Request) {
 
         sender_name,
         receiver_name,
+
         phone_number,
+        receiver_phone_number,
 
         origin_city,
         destination_city,
@@ -316,7 +272,9 @@ export async function POST(req: Request) {
 
         ${sender_name},
         ${receiver_name},
+
         ${phone_number},
+        ${receiver_phone_number},
 
         ${origin_city},
         ${destination_city},
@@ -497,7 +455,9 @@ export async function PUT(req: Request) {
 
       sender_name,
       receiver_name,
+
       phone_number,
+      receiver_phone_number,
 
       origin_city,
       destination_city,
@@ -585,7 +545,9 @@ export async function PUT(req: Request) {
 
         sender_name = ${sender_name},
         receiver_name = ${receiver_name},
+
         phone_number = ${phone_number},
+        receiver_phone_number = ${receiver_phone_number},
 
         origin_city = ${origin_city},
         destination_city = ${destination_city},

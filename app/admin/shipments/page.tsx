@@ -15,8 +15,13 @@ export default function ShipmentsPage() {
     try {
       const response = await fetch("/api/shipments");
       const data = await response.json();
-      const formatted = data
-        .filter((item: any) => !isExcludedShipment(item))
+
+      // De-duplikasi data berdasarkan awb_number agar tidak muncul 2 kali
+      const uniqueData = Array.isArray(data)
+        ? Array.from(new Map(data.map((item: any) => [item.awb_number, item])).values())
+        : [];
+
+      const formatted = uniqueData
         .map(formatShipment);
       setShipments(formatted);
     } catch (error) {
@@ -32,9 +37,16 @@ export default function ShipmentsPage() {
     fetch("/api/flights")
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) {
-          setFlights(data);
-        }
+        const list = Array.isArray(data) ? data : (data?.data || data?.rows || []);
+        // De-duplikasi berdasarkan flight_number agar key di select unik, filter data kosong
+        const unique = Array.from(
+          new Map(
+            list
+              .filter((f: any) => f && f.flight_number)
+              .map((f: any) => [f.flight_number, f])
+          ).values()
+        );
+        setFlights(unique);
       })
       .catch(() => {
         setFlights([]);
@@ -43,9 +55,14 @@ export default function ShipmentsPage() {
     fetch("/api/vehicles")
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) {
-          setVehicles(data);
-        }
+        const list = Array.isArray(data) ? data : (data?.data || data?.rows || []);
+        // Mengambil properti vehicle_name dari database, filter nilai null/kosong, lalu de-duplikasi
+        const names = list
+          .map((v: any) => (typeof v === 'string' ? v : v?.vehicle_name || v?.name))
+          .filter((name: any): name is string => typeof name === 'string' && name.trim() !== '');
+        
+        const uniqueNames = Array.from(new Set(names));
+        setVehicles(uniqueNames);
       })
       .catch(() => {
         setVehicles([]);
@@ -75,6 +92,7 @@ export default function ShipmentsPage() {
     pengirim: "",
     penerima: "",
     telepon: "",
+    teleponPenerima: "",
     asal: "",
     tujuan: "",
     jenisBarang: "",
@@ -117,6 +135,7 @@ export default function ShipmentsPage() {
     pengirim: item.sender_name,
     penerima: item.receiver_name,
     telepon: item.phone_number,
+    teleponPenerima: item.receiver_phone_number,
     asal: item.origin_city,
     tujuan: item.destination_city,
     jenisBarang: item.item_type,
@@ -181,6 +200,7 @@ export default function ShipmentsPage() {
       sender_name: form.pengirim,
       receiver_name: form.penerima,
       phone_number: form.telepon,
+      receiver_phone_number: form.teleponPenerima,
 
       origin_city: form.asal,
       destination_city: form.tujuan,
@@ -229,6 +249,7 @@ export default function ShipmentsPage() {
         pengirim: "",
         penerima: "",
         telepon: "",
+        teleponPenerima: "",
 
         asal: "",
         tujuan: "",
@@ -324,7 +345,8 @@ export default function ShipmentsPage() {
               <th className="p-3 text-left">Tanggal</th>
               <th className="p-3 text-left">Pengirim</th>
               <th className="p-3 text-left">Penerima</th>
-              <th className="p-3 text-left">Telepon</th>
+              <th className="p-3 text-left">Telepon Pengirim</th>
+              <th className="p-3 text-left">Telepon Penerima</th>
               <th className="p-3 text-left">Asal</th>
               <th className="p-3 text-left">Tujuan</th>
               <th className="p-3 text-left">Harga</th>
@@ -337,8 +359,8 @@ export default function ShipmentsPage() {
           </thead>
 
           <tbody>
-            {paginatedData.map((s, index) => (
-              <tr key={`${s.id}-${index}`} className="border-t">
+            {paginatedData.map((s) => (
+              <tr key={s.id} className="border-t">
                 <td className="p-3 text-blue-600">{s.awb}</td>
 
                 <td className="p-3">{s.tanggal}</td>
@@ -347,7 +369,9 @@ export default function ShipmentsPage() {
 
                 <td className="p-3">{s.penerima}</td>
 
-                <td className="p-3">{s.telepon}</td>
+                <td className="p-3">{s.telepon || "-"}</td>
+
+                <td className="p-3">{s.teleponPenerima || "-"}</td>
 
                 <td className="p-3">{s.asal}</td>
 
@@ -355,11 +379,11 @@ export default function ShipmentsPage() {
 
                 <td className="p-3">Rp {s.harga}</td>
 
-                <td className="p-3">{s.kendaraan}</td>
+                <td className="p-3">{s.kendaraan || "-"}</td>
 
                 <td className="p-3">{s.jenisPengiriman}</td>
 
-                <td className="p-3">{s.flight}</td>
+                <td className="p-3">{s.flight || "-"}</td>
 
                 <td className="p-3">
                   {s.status === "In Transit" && <span className="bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full text-xs">In Transit</span>}
@@ -440,7 +464,7 @@ export default function ShipmentsPage() {
       {/* MODAL TAMBAH */}
       {open && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center">
-          <div className="bg-white w-[420px] max-h-[90vh] overflow-y-auto rounded-xl p-6 relative">
+          <div className="bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl p-6 relative">
 
             <button onClick={() => setOpen(false)} className="absolute right-4 top-4">
               <X />
@@ -450,7 +474,7 @@ export default function ShipmentsPage() {
               Tambah Shipment Baru
             </h2>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
               {/* TANGGAL KIRIM */}
               <div>
@@ -465,6 +489,28 @@ export default function ShipmentsPage() {
                     setForm({ ...form, tanggal: e.target.value })
                   }
                 />
+              </div>
+
+              {/* JENIS PENGIRIMAN */}
+              <div>
+                <label className="text-sm">Jenis Pengiriman</label>
+
+                <select
+                  required
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  value={form.jenisPengiriman}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      jenisPengiriman: e.target.value,
+                    })
+                  }
+                >
+                  <option value="">Pilih</option>
+                  <option value="Biasa">Biasa</option>
+                  <option value="Cepat">Cepat</option>
+                  <option value="VVIP">VVIP</option>
+                </select>
               </div>
 
               {/* PENGIRIM */}
@@ -497,7 +543,7 @@ export default function ShipmentsPage() {
 
               {/* TELEPON */}
               <div>
-                <label className="text-sm">No Telepon</label>
+                <label className="text-sm">No Telepon Pengirim</label>
 
                 <input
                   required
@@ -505,6 +551,20 @@ export default function ShipmentsPage() {
                   value={form.telepon}
                   onChange={(e) =>
                     setForm({ ...form, telepon: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* TELEPON PENERIMA */}
+              <div>
+                <label className="text-sm">No Telepon Penerima</label>
+
+                <input
+                  required
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  value={form.teleponPenerima}
+                  onChange={(e) =>
+                    setForm({ ...form, teleponPenerima: e.target.value })
                   }
                 />
               </div>
@@ -521,64 +581,6 @@ export default function ShipmentsPage() {
                     setForm({ ...form, jenisBarang: e.target.value })
                   }
                 />
-              </div>
-
-              {/* HARGA */}
-              <div>
-                <label className="text-sm">Harga Pengiriman</label>
-
-                <input
-                  required
-                  type="number"
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
-                  value={form.harga}
-                  onChange={(e) =>
-                    setForm({ ...form, harga: e.target.value })
-                  }
-                />
-              </div>
-
-              {/* KENDARAAN */}
-              <div>
-                <label className="text-sm">Jenis Kendaraan</label>
-
-                <select
-                  required
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
-                  value={form.kendaraan}
-                  onChange={(e) =>
-                    setForm({ ...form, kendaraan: e.target.value })
-                  }
-                >
-                  <option value="">Pilih Kendaraan</option>
-                  {vehicles.map((vehicle) => (
-                    <option key={vehicle} value={vehicle}>
-                      {vehicle}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* JENIS PENGIRIMAN */}
-              <div>
-                <label className="text-sm">Jenis Pengiriman</label>
-
-                <select
-                  required
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
-                  value={form.jenisPengiriman}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      jenisPengiriman: e.target.value,
-                    })
-                  }
-                >
-                  <option value="">Pilih</option>
-                  <option value="Biasa">Biasa</option>
-                  <option value="Cepat">Cepat</option>
-                  <option value="VVIP">VVIP</option>
-                </select>
               </div>
 
               {/* ASAL */}
@@ -603,6 +605,20 @@ export default function ShipmentsPage() {
                 />
               </div>
 
+              {/* JENIS BARANG */}
+              <div>
+                <label className="text-sm">Jenis Barang</label>
+
+                <input
+                  required
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  value={form.jenisBarang}
+                  onChange={(e) =>
+                    setForm({ ...form, jenisBarang: e.target.value })
+                  }
+                />
+              </div>
+
               {/* BERAT */}
               <div>
                 <label className="text-sm">Berat (kg)</label>
@@ -613,6 +629,27 @@ export default function ShipmentsPage() {
                   value={form.berat}
                   onChange={(e) => setForm({ ...form, berat: e.target.value })}
                 />
+              </div>
+
+              {/* JENIS KENDARAAN */}
+              <div>
+                <label className="text-sm">Jenis Kendaraan</label>
+
+                <select
+                  required
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  value={form.kendaraan}
+                  onChange={(e) =>
+                    setForm({ ...form, kendaraan: e.target.value })
+                  }
+                >
+                  <option value="">Pilih Kendaraan</option>
+                  {vehicles.map((vehicle) => (
+                    <option key={`add-veh-${vehicle}`} value={vehicle}>
+                      {vehicle}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* FLIGHT */}
@@ -629,7 +666,7 @@ export default function ShipmentsPage() {
                 >
                   <option value="">Pilih No. Penerbangan</option>
                   {flights.map((flight) => (
-                    <option key={flight.flight_number} value={flight.flight_number}>
+                    <option key={`create-flight-${flight.flight_number}`} value={flight.flight_number}>
                       {flight.flight_number}
                     </option>
                   ))}
@@ -658,7 +695,7 @@ export default function ShipmentsPage() {
               </div>
 
               {/* BUTTON */}
-              <div className="grid grid-cols-2 gap-3 pt-2">
+              <div className="md:col-span-2 grid grid-cols-2 gap-3 pt-2">
                 <button type="button" onClick={() => setOpen(false)} className="border py-2 rounded-lg">
                   Batal
                 </button>
@@ -675,7 +712,7 @@ export default function ShipmentsPage() {
       {/* MODAL EDIT */}
       {editData && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center">
-          <div className="bg-white w-[420px] max-h-[90vh] overflow-y-auto rounded-xl p-6 relative">
+          <div className="bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl p-6 relative">
 
             <button onClick={() => setEditData(null)} className="absolute right-4 top-4">
               <X />
@@ -685,9 +722,9 @@ export default function ShipmentsPage() {
               Update Shipment
             </h2>
 
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-              {/* JENIS BARANG */}
+              {/* BARIS 1 */}
               <div>
                 <label className="text-sm">Jenis Barang</label>
 
@@ -699,11 +736,10 @@ export default function ShipmentsPage() {
                       jenisBarang: e.target.value,
                     })
                   }
-                  className="w-full border rounded-lg px-3 py-2"
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
                 />
               </div>
 
-              {/* BERAT */}
               <div>
                 <label className="text-sm">Berat (kg)</label>
 
@@ -716,15 +752,46 @@ export default function ShipmentsPage() {
                       berat: e.target.value,
                     })
                   }
-                  className="w-full border rounded-lg px-3 py-2"
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
                 />
               </div>
 
-              {/* JENIS KENDARAAN */}
+              {/* BARIS 2 */}
+              <div>
+                <label className="text-sm">No Telepon Pengirim</label>
+
+                <input
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  value={editData.telepon || ""}
+                  onChange={(e) =>
+                    setEditData({
+                      ...editData,
+                      telepon: e.target.value,
+                    })
+                  }
+                />
+              </div>
+
+              <div>
+                <label className="text-sm">No Telepon Penerima</label>
+
+                <input
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  value={editData.teleponPenerima || ""}
+                  onChange={(e) =>
+                    setEditData({
+                      ...editData,
+                      teleponPenerima: e.target.value,
+                    })
+                  }
+                />
+              </div>
+
+              {/* BARIS 3 */}
               <div>
                 <label className="text-sm">Jenis Kendaraan</label>
 
-                <input
+                <select
                   value={editData.kendaraan || ""}
                   onChange={(e) =>
                     setEditData({
@@ -732,11 +799,17 @@ export default function ShipmentsPage() {
                       kendaraan: e.target.value,
                     })
                   }
-                  className="w-full border rounded-lg px-3 py-2"
-                />
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                >
+                  <option value="">Pilih Kendaraan</option>
+                  {vehicles.map((vehicle) => (
+                    <option key={`edit-veh-${vehicle}`} value={vehicle}>
+                      {vehicle}
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              {/* JENIS PENGIRIMAN */}
               <div>
                 <label className="text-sm">Jenis Pengiriman</label>
 
@@ -756,23 +829,52 @@ export default function ShipmentsPage() {
                 </select>
               </div>
 
-              {/* DESKRIPSI */}
+              {/* BARIS 4 */}
               <div>
-                <label className="text-sm">Deskripsi Barang</label>
+                <label className="text-sm">Harga Pengiriman</label>
 
-                <textarea
-                  value={editData.deskripsi}
+                <input
+                  required
+                  type="number"
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  value={form.harga}
                   onChange={(e) =>
-                    setEditData({
-                      ...editData,
-                      deskripsi: e.target.value,
-                    })
+                    setForm({ ...form, harga: e.target.value })
                   }
-                  className="w-full border rounded-lg px-3 py-2"
                 />
               </div>
 
+              <div>
+                <label className="text-sm">No. Penerbangan</label>
+                <select
+                  value={editData.flight || ""}
+                  onChange={(e) => {
+                    const selectedFlight = flights.find((f) => f.flight_number === e.target.value);
+                    setEditData({
+                      ...editData,
+                      flight: e.target.value,
+                      status: selectedFlight ? selectedFlight.status : editData.status,
+                    });
+                    setEditFlightError("");
+                  }}
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${editFlightError ? "border-red-500" : ""}`}
+                >
+                  <option value="">Pilih No. Penerbangan</option>
+                  {flights.map((flight) => (
+                    <option key={`edit-flight-${flight.flight_number}`} value={flight.flight_number}>
+                      {flight.flight_number}
+                    </option>
+                  ))}
+                </select>
 
+                {editFlightError && (
+                  <p className="text-red-500 text-xs mt-1">
+                    Flight tidak ditemukan
+                  </p>
+                )}
+              </div>
+
+              {/* BARIS 5 */}
               <div>
                 <label className="text-sm">Asal</label>
                 <input
@@ -791,42 +893,13 @@ export default function ShipmentsPage() {
                 />
               </div>
 
-              <div>
-                <label className="text-sm">No. Penerbangan</label>
-                <select
-                  value={editData.flight || ""}
-                  onChange={(e) => {
-                    const selectedFlight = flights.find((f) => f.flight_number === e.target.value);
-                    setEditData({
-                      ...editData,
-                      flight: e.target.value,
-                      status: selectedFlight ? selectedFlight.status : editData.status,
-                    });
-                    setEditFlightError("");
-                  }}
-                  className={`w-full border rounded-lg px-3 py-2 ${editFlightError ? "border-red-500" : ""}`}
-                >
-                  <option value="">Pilih No. Penerbangan</option>
-                  {flights.map((flight) => (
-                    <option key={flight.flight_number} value={flight.flight_number}>
-                      {flight.flight_number}
-                    </option>
-                  ))}
-                </select>
-
-                {editFlightError && (
-                  <p className="text-red-500 text-xs mt-1">
-                    Flight tidak ditemukan
-                  </p>
-                )}
-              </div>
-
+              {/* BARIS 6 */}
               <div>
                 <label className="text-sm">Status Baru</label>
                 <select
                   value={editData.status}
                   onChange={(e) => setEditData({ ...editData, status: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2"
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
                 >
                   <option>Received</option>
                   <option>In Transit</option>
@@ -834,7 +907,22 @@ export default function ShipmentsPage() {
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 pt-2">
+              <div>
+                <label className="text-sm">Deskripsi Barang</label>
+
+                <textarea
+                  value={editData.deskripsi}
+                  onChange={(e) =>
+                    setEditData({
+                      ...editData,
+                      deskripsi: e.target.value,
+                    })
+                  }
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                />
+              </div>
+
+              <div className="md:col-span-2 grid grid-cols-2 gap-3 pt-2">
                 <button
                   onClick={() => setEditData(null)}
                   className="border py-2 rounded-lg"
@@ -864,6 +952,7 @@ export default function ShipmentsPage() {
                         sender_name: editData.pengirim,
                         receiver_name: editData.penerima,
                         phone_number: editData.telepon,
+                        receiver_phone_number: editData.teleponPenerima,
                         origin_city: editData.asal,
                         destination_city: editData.tujuan,
                         shipping_type: editData.jenisPengiriman,

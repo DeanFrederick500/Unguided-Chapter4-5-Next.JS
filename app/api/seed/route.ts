@@ -324,179 +324,252 @@ export async function GET() {
     // =====================================================
 
     await sql`
-      INSERT INTO shipments
-      (
-        awb_number,
-        shipment_date,
+  INSERT INTO shipments
+  (
+    awb_number,
+    shipment_date,
 
-        sender_name,
-        receiver_name,
-        phone_number,
+    sender_name,
+    receiver_name,
 
-        origin_city,
-        destination_city,
+    phone_number,
+    receiver_phone_number,
 
-        shipping_type,
-        shipment_status,
+    origin_city,
+    destination_city,
 
-        vehicle_id,
-        flight_id,
+    shipping_type,
+    shipment_status,
 
-        created_at
-      )
-      VALUES
+    vehicle_id,
+    flight_id,
 
-      (
-        'AWB00000001',
-        '2026-05-01',
-        'Budi Santoso',
-        'Andi Wijaya',
-        '081234567890',
-        'Jakarta',
-        'Bandung',
-        'Small Cargo',
-        'Delivered',
-        1,
-        NULL,
-        NOW()
-      ),
+    created_at
+  )
+  VALUES
 
-      (
-        'AWB00000002',
-        '2026-05-02',
-        'Siti Rahma',
-        'Dewi Lestari',
-        '081355566677',
-        'Surabaya',
-        'Malang',
-        'Medium Cargo',
-        'In Transit',
-        2,
-        NULL,
-        NOW()
-      ),
+  (
+    'AWB00000001',
+    '2026-05-01',
 
-      (
-        'AWB00000003',
-        '2026-05-03',
-        'Robby Saputra',
-        'Kevin Jonathan',
-        '082211223344',
-        'Jakarta',
-        'Singapore',
-        'Large Cargo',
-        'Delivered',
-        6,
-        1,
-        NOW()
-      ),
+    'Budi Santoso',
+    'Andi Wijaya',
 
-      (
-        'AWB00000004',
-        '2026-05-04',
-        'Agus Salim',
-        'Clara Monica',
-        '081377788899',
-        'Bali',
-        'Tokyo',
-        'Heavy Cargo',
-        'In Transit',
-        7,
-        3,
-        NOW()
-      ),
+    '081234567890',
+    '081298887776',
 
-      (
-        'AWB00000005',
-        '2026-05-05',
-        'Tono Setiawan',
-        'Rio Saputra',
-        '081288899900',
-        'Medan',
-        'Kuala Lumpur',
-        'Medium Cargo',
-        'Pending',
-        3,
-        5,
-        NOW()
-      ),
+    'Jakarta',
+    'Bandung',
 
-      (
-        'AWB00000006',
-        '2026-05-06',
-        'Lina Marlina',
-        'Rina Putri',
-        '081277766655',
-        'Yogyakarta',
-        'Semarang',
-        'Small Cargo',
-        'Delivered',
-        10,
-        NULL,
-        NOW()
-      ),
+    'Small Cargo',
+    'Delivered',
 
-      (
-        'AWB00000007',
-        '2026-05-07',
-        'Fajar Nugroho',
-        'Aldo Pratama',
-        '082233344455',
-        'Jakarta',
-        'Hongkong',
-        'Heavy Cargo',
-        'In Transit',
-        6,
-        4,
-        NOW()
-      ),
+    1,
+    NULL,
 
-      (
-        'AWB00000008',
-        '2026-05-08',
-        'Nina Oktavia',
-        'Mira Angel',
-        '081399988877',
-        'Surabaya',
-        'Bangkok',
-        'Medium Cargo',
-        'Delivered',
-        2,
-        2,
-        NOW()
-      ),
+    NOW()
+  ),
 
-      (
-        'AWB00000009',
-        '2026-05-09',
-        'Dimas Prakoso',
-        'Reza Mahendra',
-        '081244455566',
-        'Bandung',
-        'Jakarta',
-        'Small Cargo',
-        'Pending',
-        5,
-        NULL,
-        NOW()
-      ),
+  (
+    'AWB00000002',
+    '2026-05-02',
 
-      (
-        'AWB00000010',
-        '2026-05-10',
-        'Salsa Putri',
-        'Cindy Natalia',
-        '081366677788',
-        'Solo',
-        'Semarang',
-        'Large Cargo',
-        'In Transit',
-        3,
-        NULL,
-        NOW()
-      )
-      ON CONFLICT (awb_number) DO NOTHING;
-    `;
+    'Siti Rahma',
+    'Dewi Lestari',
+
+    '081355566677',
+    '081377788899',
+
+    'Surabaya',
+    'Malang',
+
+    'Medium Cargo',
+    'In Transit',
+
+    2,
+    NULL,
+
+    NOW()
+  ),
+
+  (
+    'AWB00000003',
+    '2026-05-03',
+
+    'Robby Saputra',
+    'Kevin Jonathan',
+
+    '082211223344',
+    '082233344455',
+
+    'Jakarta',
+    'Singapore',
+
+    'Large Cargo',
+    'Delivered',
+
+    6,
+    1,
+
+    NOW()
+  ),
+
+  (
+    'AWB00000004',
+    '2026-05-04',
+
+    'Agus Salim',
+    'Clara Monica',
+
+    '081377788899',
+    '081399900011',
+
+    'Bali',
+    'Tokyo',
+
+    'Heavy Cargo',
+    'In Transit',
+
+    7,
+    3,
+
+    NOW()
+  ),
+
+  (
+    'AWB00000005',
+    '2026-05-05',
+
+    'Tono Setiawan',
+    'Rio Saputra',
+
+    '081288899900',
+    '081244455566',
+
+    'Medan',
+    'Kuala Lumpur',
+
+    'Medium Cargo',
+    'Pending',
+
+    3,
+    5,
+
+    NOW()
+  ),
+
+  (
+    'AWB00000006',
+    '2026-05-06',
+
+    'Lina Marlina',
+    'Rina Putri',
+
+    '081277766655',
+    '081366677788',
+
+    'Yogyakarta',
+    'Semarang',
+
+    'Small Cargo',
+    'Delivered',
+
+    10,
+    NULL,
+
+    NOW()
+  ),
+
+  (
+    'AWB00000007',
+    '2026-05-07',
+
+    'Fajar Nugroho',
+    'Aldo Pratama',
+
+    '082233344455',
+    '082211100099',
+
+    'Jakarta',
+    'Hongkong',
+
+    'Heavy Cargo',
+    'In Transit',
+
+    6,
+    4,
+
+    NOW()
+  ),
+
+  (
+    'AWB00000008',
+    '2026-05-08',
+
+    'Nina Oktavia',
+    'Mira Angel',
+
+    '081399988877',
+    '081355500011',
+
+    'Surabaya',
+    'Bangkok',
+
+    'Medium Cargo',
+    'Delivered',
+
+    2,
+    2,
+
+    NOW()
+  ),
+
+  (
+    'AWB00000009',
+    '2026-05-09',
+
+    'Dimas Prakoso',
+    'Reza Mahendra',
+
+    '081244455566',
+    '081288877766',
+
+    'Bandung',
+    'Jakarta',
+
+    'Small Cargo',
+    'Pending',
+
+    5,
+    NULL,
+
+    NOW()
+  ),
+
+  (
+    'AWB00000010',
+    '2026-05-10',
+
+    'Salsa Putri',
+    'Cindy Natalia',
+
+    '081366677788',
+    '081377766655',
+
+    'Solo',
+    'Semarang',
+
+    'Large Cargo',
+    'In Transit',
+
+    3,
+    NULL,
+
+    NOW()
+  )
+
+  ON CONFLICT (awb_number) DO NOTHING;
+`;
 
     // =====================================================
     // PRODUCTS

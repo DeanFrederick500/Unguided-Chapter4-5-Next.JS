@@ -59,7 +59,9 @@ export async function GET() {
 
         sender_name VARCHAR(100),
         receiver_name VARCHAR(100),
+
         phone_number VARCHAR(20),
+        receiver_phone_number VARCHAR(20),
 
         origin_city VARCHAR(100),
         destination_city VARCHAR(100),
