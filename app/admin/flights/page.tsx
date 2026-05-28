@@ -64,10 +64,21 @@ export default function FlightsPage() {
 
 
   const totalActive = flights.filter(
-    (f) => !["departed", "delayed"].includes(f.status.toLowerCase())
+    (f) =>
+      !["departed", "delayed"].includes(
+        f.status.toLowerCase()
+      )
   ).length;
-  const totalDelayed = flights.filter((f) => f.status === "delayed").length;
-  const totalDeparted = flights.filter((f) => f.status === "departed").length;
+
+  const totalDelayed = flights.filter(
+    (f) =>
+      f.status.toLowerCase() === "delayed"
+  ).length;
+
+  const totalDeparted = flights.filter(
+    (f) =>
+      f.status.toLowerCase() === "departed"
+  ).length;
 
   const openModal = (flight: any) => {
     setSelected(flight);
