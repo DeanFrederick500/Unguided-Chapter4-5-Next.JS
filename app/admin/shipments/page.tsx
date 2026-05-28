@@ -10,6 +10,7 @@ export default function ShipmentsPage() {
   const [flights, setFlights] = useState<{ flight_number: string; status: string }[]>([]);
   const [vehicles, setVehicles] = useState<string[]>([]);
   const [shipments, setShipments] = useState<any[]>([]);
+  const [itemTypes, setItemTypes] = useState<string[]>([]);
 
   const loadShipments = async () => {
     try {
@@ -66,6 +67,23 @@ export default function ShipmentsPage() {
       })
       .catch(() => {
         setVehicles([]);
+      });
+    
+    fetch("/api/item-types")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("API /api/item-types response:", data); // Debugging: Log API response
+        const list = Array.isArray(data) ? data : (data?.data || data?.rows || []);
+        const types = list
+          .map((t: any) => (typeof t === 'string' ? t : t?.item_type || t?.name || t?.type_name))
+          .filter((t: any): t is string => typeof t === 'string' && t.trim() !== '');
+        
+        const uniqueTypes = Array.from(new Set(types));
+        console.log("Processed unique item types:", uniqueTypes); // Debugging: Log processed types
+        setItemTypes(uniqueTypes);
+      })
+      .catch(() => {
+        setItemTypes([]);
       });
   }, []);
 
@@ -585,15 +603,28 @@ export default function ShipmentsPage() {
               {/* JENIS BARANG */}
               <div>
                 <label className="text-sm">Jenis Barang</label>
-
-                <input
+                <select
                   required
                   className="w-full border rounded-lg px-3 py-2 mt-1"
                   value={form.jenisBarang}
                   onChange={(e) =>
                     setForm({ ...form, jenisBarang: e.target.value })
                   }
-                />
+                >
+                  <option value="">Pilih Jenis Barang</option>
+                  {itemTypes.map((type) => (
+                    <option key={`add-item-${type}`} value={type}>{type}</option>
+                  ))}
+                  {itemTypes.length === 0 && ( // Fallback options if API returns no item types
+                    <>
+                      <option value="Biasa">Biasa</option>
+                      <option value="Small Cargo">Small Cargo</option>
+                      <option value="Medium Cargo">Medium Cargo</option>
+                      <option value="Large Cargo">Large Cargo</option>
+                      <option value="Heavy Cargo">Heavy Cargo</option>
+                    </>
+                  )}
+                </select>
               </div>
 
               {/* ASAL */}
@@ -615,20 +646,6 @@ export default function ShipmentsPage() {
                   className="w-full border rounded-lg px-3 py-2 mt-1"
                   value={form.tujuan}
                   onChange={(e) => setForm({ ...form, tujuan: e.target.value })}
-                />
-              </div>
-
-              {/* JENIS BARANG */}
-              <div>
-                <label className="text-sm">Jenis Barang</label>
-
-                <input
-                  required
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
-                  value={form.jenisBarang}
-                  onChange={(e) =>
-                    setForm({ ...form, jenisBarang: e.target.value })
-                  }
                 />
               </div>
 
@@ -741,7 +758,7 @@ export default function ShipmentsPage() {
               <div>
                 <label className="text-sm">Jenis Barang</label>
 
-                <input
+                <select
                   value={editData.jenisBarang || ""}
                   onChange={(e) =>
                     setEditData({
@@ -750,7 +767,21 @@ export default function ShipmentsPage() {
                     })
                   }
                   className="w-full border rounded-lg px-3 py-2 mt-1"
-                />
+                >
+                  <option value="">Pilih Jenis Barang</option>
+                  {itemTypes.map((type) => (
+                    <option key={`edit-item-${type}`} value={type}>{type}</option>
+                  ))}
+                  {itemTypes.length === 0 && ( // Fallback options if API returns no item types
+                    <>
+                      <option value="Biasa">Biasa</option>
+                      <option value="Small Cargo">Small Cargo</option>
+                      <option value="Medium Cargo">Medium Cargo</option>
+                      <option value="Large Cargo">Large Cargo</option>
+                      <option value="Heavy Cargo">Heavy Cargo</option>
+                    </>
+                  )}
+                </select>
               </div>
 
               <div>
