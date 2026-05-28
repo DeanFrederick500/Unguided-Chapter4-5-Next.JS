@@ -6,6 +6,7 @@ import {
   AlertTriangle,
   Plane,
   Clock,
+  Pencil,
 } from "lucide-react";
 
 export default function FlightsPage() {
@@ -25,7 +26,8 @@ export default function FlightsPage() {
   const [flights, setFlights] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  
+  const [selected, setSelected] = useState<any>(null);
+  const [newStatus, setNewStatus] = useState("");
 
   useEffect(() => {
     async function loadFlights() {
@@ -62,12 +64,65 @@ export default function FlightsPage() {
 
 
   const totalActive = flights.filter(
-    (f) => !["departed", "delayed"].includes(f.status.toLowerCase())
+    (f) =>
+      !["departed", "delayed"].includes(
+        f.status.toLowerCase()
+      )
   ).length;
-  const totalDelayed = flights.filter((f) => f.status.toLowerCase() === "delayed").length;
-  const totalDeparted = flights.filter((f) => f.status.toLowerCase() === "departed").length;
 
-  
+  const totalDelayed = flights.filter(
+    (f) =>
+      f.status.toLowerCase() === "delayed"
+  ).length;
+
+  const totalDeparted = flights.filter(
+    (f) =>
+      f.status.toLowerCase() === "departed"
+  ).length;
+
+  const openModal = (flight: any) => {
+    setSelected(flight);
+    setNewStatus(flight.status);
+  };
+
+  const closeModal = () => setSelected(null);
+
+  const updateStatus = async () => {
+    if (!selected) return;
+
+    const updatedStatus = newStatus || selected.status;
+
+    try {
+      const response = await fetch("/api/flights", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: selected.id,
+          status: updatedStatus,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to update flight status");
+      }
+
+      const updatedFlights = flights.map((f) =>
+        f.id === selected.id
+          ? { ...f, status: updatedStatus }
+          : f
+      );
+
+      setFlights(updatedFlights);
+      closeModal();
+    } catch (error) {
+      console.error("Update failed:", error);
+      alert("Gagal memperbarui status penerbangan. Coba lagi.");
+    }
+  };
 
   const formatStatus = (status: string) => {
     const normalized = status.toLowerCase();
@@ -159,7 +214,7 @@ export default function FlightsPage() {
               <th className="p-3 text-left">ETD</th>
               <th className="p-3 text-left">ETA</th>
               <th className="p-3 text-left">Status</th>
-            
+              <th className="p-3 text-left">Aksi</th>
             </tr>
           </thead>
 
@@ -172,14 +227,64 @@ export default function FlightsPage() {
                 <td className="p-3">{f.etd}</td>
                 <td className="p-3">{f.eta}</td>
                 <td className="p-3">{statusUI(f.status)}</td>
-                
+                <td className="p-3">
+                  <button
+                    onClick={() => openModal(f)}
+                    className="flex items-center gap-1 text-blue-600 hover:text-blue-800 transition"
+                  >
+                    <Pencil size={16} />
+                    Edit
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      
+      {/* MODAL */}
+      {selected && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-xl w-96 shadow">
+            <h2 className="text-lg font-semibold mb-4">
+              Update Status Penerbangan
+            </h2>
+
+            <p className="text-sm mb-2">{selected.flight}</p>
+            <p className="text-gray-500 text-sm mb-4">
+              {selected.asal} → {selected.tujuan}
+            </p>
+
+            <select
+              className="w-full border p-2 rounded mb-4"
+              value={newStatus}
+              onChange={(e) => setNewStatus(e.target.value)}
+            >
+              <option value="Scheduled">Scheduled</option>
+              <option value="Departed">Departed</option>
+              <option value="Delayed">Delayed</option>
+              <option value="In Transit">In Transit</option>
+              <option value="Landed">Landed</option>
+            </select>
+
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                onClick={closeModal}
+                className="border py-2 rounded-lg"
+              >
+                Batal
+              </button>
+
+              <button
+                onClick={updateStatus}
+                className="bg-blue-600 text-white py-2 rounded-lg"
+              >
+                Update
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
