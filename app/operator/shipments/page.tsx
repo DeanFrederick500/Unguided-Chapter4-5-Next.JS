@@ -98,7 +98,8 @@ export default function ShipmentsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [flightError, setFlightError] = useState("");
-  const [editFlightError, setEditFlightError] = useState("");
+  const [beratError, setBeratError] = useState("");
+  const [hargaError, setHargaError] = useState("");
 
   const getFlightStatus = (flightNumber: string) => {
     const flight = flights.find((f) => f.flight_number === flightNumber);
@@ -113,6 +114,7 @@ export default function ShipmentsPage() {
     teleponPenerima: "",
     asal: "",
     tujuan: "",
+    namaBarang: "",
     jenisBarang: "",
     berat: "",
     harga: "",
@@ -180,7 +182,8 @@ export default function ShipmentsPage() {
     const matchSearch =
       s.awb.toLowerCase().includes(searchText) ||
       s.penerima.toLowerCase().includes(searchText) ||
-      s.pengirim.toLowerCase().includes(searchText);
+      s.pengirim.toLowerCase().includes(searchText) ||
+      (s.item_name || "").toLowerCase().includes(searchText);
     const matchStatus = statusFilter ? s.status === statusFilter : true;
     return matchSearch && matchStatus;
   });
@@ -209,6 +212,11 @@ export default function ShipmentsPage() {
 
     setFlightError("");
 
+    if (beratError || hargaError) {
+      alert("Harap perbaiki kesalahan: Berat dan Harga harus berupa angka!");
+      return;
+    }
+
     const newData = {
 
       awb_number: generateAWB(),
@@ -229,7 +237,7 @@ export default function ShipmentsPage() {
       vehicle_name: form.kendaraan,
       flight_number: form.flight,
 
-      item_name: form.jenisBarang,
+      item_name: form.namaBarang,
       item_type: form.jenisBarang,
       item_description: form.deskripsi,
 
@@ -273,6 +281,7 @@ export default function ShipmentsPage() {
         asal: "",
         tujuan: "",
 
+        namaBarang: "",
         jenisBarang: "",
 
         berat: "",
@@ -296,6 +305,57 @@ export default function ShipmentsPage() {
 
       alert(errorData.error || "Gagal menambahkan shipment");
 
+    }
+  };
+
+  const handleEditSubmit = async (e: any) => {
+    e.preventDefault();
+
+    const selectedFlight = flights.find((f) => f.flight_number === editData.flight);
+    if (!selectedFlight) {
+      alert("Flight tidak ditemukan. Harap pilih flight yang valid.");
+      return;
+    }
+
+    const response = await fetch("/api/shipments", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: editData.id,
+        shipment_date: editData.tanggal,
+        sender_name: editData.pengirim,
+        receiver_name: editData.penerima,
+        phone_number: editData.telepon,
+        receiver_phone_number: editData.teleponPenerima,
+        origin_city: editData.asal,
+        destination_city: editData.tujuan,
+        shipping_type: editData.jenisPengiriman,
+        shipment_status: editData.status,
+        vehicle_name: editData.kendaraan,
+        flight_number: editData.flight,
+        item_name: editData.item_name ?? editData.jenisBarang,
+        item_type: editData.jenisBarang,
+        item_description: editData.deskripsi,
+        quantity: editData.quantity ?? 1,
+        weight: Number(editData.berat),
+        item_status: editData.item_status ?? "safe",
+        shipping_price: Number(editData.harga),
+        admin_fee: editData.admin_fee ?? 5000,
+        total_price: Number(editData.harga) + (editData.admin_fee ?? 5000),
+        payment_method: editData.payment_method ?? "Transfer Bank",
+        payment_date: editData.payment_date ?? editData.tanggal,
+        transaction_status: editData.transaction_status ?? "paid",
+      }),
+    });
+
+    if (response.ok) {
+      await loadShipments();
+      setEditData(null);
+      alert("Shipment berhasil diperbarui!");
+    } else {
+      alert("Gagal update shipment");
     }
   };
 
@@ -368,6 +428,7 @@ export default function ShipmentsPage() {
               <th className="p-3 text-left">Telepon Penerima</th>
               <th className="p-3 text-left">Asal</th>
               <th className="p-3 text-left">Tujuan</th>
+              <th className="p-3 text-left">Nama Barang</th>
               <th className="p-3 text-left">Harga</th>
               <th className="p-3 text-left">Jenis Kendaraan</th>
               <th className="p-3 text-left">Jenis Pengiriman</th>
@@ -395,6 +456,8 @@ export default function ShipmentsPage() {
                 <td className="p-3">{s.asal}</td>
 
                 <td className="p-3">{s.tujuan}</td>
+
+                <td className="p-3">{s.item_name || "-"}</td>
 
                 <td className="p-3">Rp {s.harga}</td>
 
@@ -601,6 +664,20 @@ export default function ShipmentsPage() {
                 />
               </div>
 
+              {/* NAMA BARANG */}
+              <div>
+                <label className="text-sm">Nama Barang</label>
+
+                <input
+                  required
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  value={form.namaBarang}
+                  onChange={(e) =>
+                    setForm({ ...form, namaBarang: e.target.value })
+                  }
+                />
+              </div>
+
               {/* JENIS BARANG */}
               <div>
                 <label className="text-sm">Jenis Barang</label>
@@ -658,8 +735,17 @@ export default function ShipmentsPage() {
                   type="number"
                   className="w-full border rounded-lg px-3 py-2 mt-1"
                   value={form.berat}
-                  onChange={(e) => setForm({ ...form, berat: e.target.value })}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setForm({ ...form, berat: val });
+                    if (val === "" || isNaN(Number(val))) {
+                      setBeratError("anda harus memasukan angka");
+                    } else {
+                      setBeratError("");
+                    }
+                  }}
                 />
+                {beratError && <p className="text-red-500 text-xs mt-1">{beratError}</p>}
               </div>
 
               {/* HARGA */}
@@ -670,8 +756,17 @@ export default function ShipmentsPage() {
                   type="number"
                   className="w-full border rounded-lg px-3 py-2 mt-1"
                   value={form.harga}
-                  onChange={(e) => setForm({ ...form, harga: e.target.value })}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setForm({ ...form, harga: val });
+                    if (val === "" || isNaN(Number(val))) {
+                      setHargaError("anda harus memasukan angka");
+                    } else {
+                      setHargaError("");
+                    }
+                  }}
                 />
+                {hargaError && <p className="text-red-500 text-xs mt-1">{hargaError}</p>}
               </div>
 
               {/* JENIS KENDARAAN */}
@@ -765,20 +860,27 @@ export default function ShipmentsPage() {
               Update Shipment
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form onSubmit={handleEditSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
               {/* BARIS 1 */}
+              <div>
+                <label className="text-sm">Nama Barang</label>
+
+                <input
+                  required
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  value={editData.item_name || ""}
+                  onChange={(e) => setEditData({ ...editData, item_name: e.target.value })}
+                />
+              </div>
+
               <div>
                 <label className="text-sm">Jenis Barang</label>
 
                 <select
+                  required
                   value={editData.jenisBarang || ""}
-                  onChange={(e) =>
-                    setEditData({
-                      ...editData,
-                      jenisBarang: e.target.value,
-                    })
-                  }
+                  onChange={(e) => setEditData({ ...editData, jenisBarang: e.target.value })}
                   className="w-full border rounded-lg px-3 py-2 mt-1"
                 >
                   <option value="">Pilih Jenis Barang</option>
@@ -802,13 +904,9 @@ export default function ShipmentsPage() {
 
                 <input
                   type="number"
+                  required
                   value={editData.berat || ""}
-                  onChange={(e) =>
-                    setEditData({
-                      ...editData,
-                      berat: e.target.value,
-                    })
-                  }
+                  onChange={(e) => setEditData({ ...editData, berat: e.target.value })}
                   className="w-full border rounded-lg px-3 py-2 mt-1"
                 />
               </div>
@@ -818,14 +916,10 @@ export default function ShipmentsPage() {
                 <label className="text-sm">No Telepon Pengirim</label>
 
                 <input
+                  required
                   className="w-full border rounded-lg px-3 py-2 mt-1"
                   value={editData.telepon || ""}
-                  onChange={(e) =>
-                    setEditData({
-                      ...editData,
-                      telepon: e.target.value,
-                    })
-                  }
+                  onChange={(e) => setEditData({ ...editData, telepon: e.target.value })}
                 />
               </div>
 
@@ -833,29 +927,20 @@ export default function ShipmentsPage() {
                 <label className="text-sm">No Telepon Penerima</label>
 
                 <input
+                  required
                   className="w-full border rounded-lg px-3 py-2 mt-1"
                   value={editData.teleponPenerima || ""}
-                  onChange={(e) =>
-                    setEditData({
-                      ...editData,
-                      teleponPenerima: e.target.value,
-                    })
-                  }
+                  onChange={(e) => setEditData({ ...editData, teleponPenerima: e.target.value })}
                 />
               </div>
 
               {/* BARIS 3 */}
               <div>
                 <label className="text-sm">Jenis Kendaraan</label>
-
                 <select
+                  required
                   value={editData.kendaraan || ""}
-                  onChange={(e) =>
-                    setEditData({
-                      ...editData,
-                      kendaraan: e.target.value,
-                    })
-                  }
+                  onChange={(e) => setEditData({ ...editData, kendaraan: e.target.value })}
                   className="w-full border rounded-lg px-3 py-2 mt-1"
                 >
                   <option value="">Pilih Kendaraan</option>
@@ -871,13 +956,9 @@ export default function ShipmentsPage() {
                 <label className="text-sm">Jenis Pengiriman</label>
 
                 <select
+                  required
                   value={editData.jenisPengiriman}
-                  onChange={(e) =>
-                    setEditData({
-                      ...editData,
-                      jenisPengiriman: e.target.value,
-                    })
-                  }
+                  onChange={(e) => setEditData({ ...editData, jenisPengiriman: e.target.value })}
                   className="w-full border rounded-lg px-3 py-2"
                 >
                   <option value="Biasa">Biasa</option>
@@ -895,15 +976,14 @@ export default function ShipmentsPage() {
                   type="number"
                   className="w-full border rounded-lg px-3 py-2 mt-1"
                   value={editData.harga || ""}
-                  onChange={(e) =>
-                    setEditData({ ...editData, harga: e.target.value })
-                  }
+                  onChange={(e) => setEditData({ ...editData, harga: e.target.value })}
                 />
               </div>
 
               <div>
                 <label className="text-sm">No. Penerbangan</label>
                 <select
+                  required
                   value={editData.flight || ""}
                   onChange={(e) => {
                     const selectedFlight = flights.find((f) => f.flight_number === e.target.value);
@@ -912,9 +992,8 @@ export default function ShipmentsPage() {
                       flight: e.target.value,
                       status: selectedFlight ? selectedFlight.status : editData.status,
                     });
-                    setEditFlightError("");
                   }}
-                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${editFlightError ? "border-red-500" : ""}`}
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
                 >
                   <option value="">Pilih No. Penerbangan</option>
                   {flights.map((flight) => (
@@ -923,18 +1002,13 @@ export default function ShipmentsPage() {
                     </option>
                   ))}
                 </select>
-
-                {editFlightError && (
-                  <p className="text-red-500 text-xs mt-1">
-                    Flight tidak ditemukan
-                  </p>
-                )}
               </div>
 
               {/* BARIS 5 */}
               <div>
                 <label className="text-sm">Asal</label>
                 <input
+                  required
                   value={editData.asal}
                   onChange={(e) => setEditData({ ...editData, asal: e.target.value })}
                   className="w-full border rounded-lg px-3 py-2"
@@ -944,6 +1018,7 @@ export default function ShipmentsPage() {
               <div>
                 <label className="text-sm">Tujuan</label>
                 <input
+                  required
                   value={editData.tujuan}
                   onChange={(e) => setEditData({ ...editData, tujuan: e.target.value })}
                   className="w-full border rounded-lg px-3 py-2"
@@ -954,6 +1029,7 @@ export default function ShipmentsPage() {
               <div>
                 <label className="text-sm">Status Baru</label>
                 <select
+                  required
                   value={editData.status || ""}
                   onChange={(e) => setEditData({ ...editData, status: e.target.value })}
                   className="w-full border rounded-lg px-3 py-2 mt-1"
@@ -973,19 +1049,16 @@ export default function ShipmentsPage() {
                 <label className="text-sm">Deskripsi Barang</label>
 
                 <textarea
+                  required
                   value={editData.deskripsi}
-                  onChange={(e) =>
-                    setEditData({
-                      ...editData,
-                      deskripsi: e.target.value,
-                    })
-                  }
+                  onChange={(e) => setEditData({ ...editData, deskripsi: e.target.value })}
                   className="w-full border rounded-lg px-3 py-2 mt-1"
                 />
               </div>
 
               <div className="md:col-span-2 grid grid-cols-2 gap-3 pt-2">
                 <button
+                  type="button"
                   onClick={() => setEditData(null)}
                   className="border py-2 rounded-lg"
                 >
@@ -993,67 +1066,14 @@ export default function ShipmentsPage() {
                 </button>
 
                 <button
-                  onClick={async () => {
-
-                    const selectedFlight = flights.find((f) => f.flight_number === editData.flight);
-                    if (!selectedFlight) {
-                      setEditFlightError("Flight tidak ditemukan");
-                      return;
-                    }
-
-                    setEditFlightError("");
-
-                    const response = await fetch("/api/shipments", {
-                      method: "PUT",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                      body: JSON.stringify({
-                        id: editData.id,
-                        shipment_date: editData.tanggal,
-                        sender_name: editData.pengirim,
-                        receiver_name: editData.penerima,
-                        phone_number: editData.telepon,
-                        receiver_phone_number: editData.teleponPenerima,
-                        origin_city: editData.asal,
-                        destination_city: editData.tujuan,
-                        shipping_type: editData.jenisPengiriman,
-                        shipment_status: editData.status,
-                        vehicle_name: editData.kendaraan,
-                        flight_number: editData.flight,
-                        item_name: editData.item_name ?? editData.jenisBarang,
-                        item_type: editData.jenisBarang,
-                        item_description: editData.deskripsi,
-                        quantity: editData.quantity ?? 1,
-                        weight: Number(editData.berat),
-                        item_status: editData.item_status ?? "safe",
-                        shipping_price: Number(editData.harga),
-                        admin_fee: editData.admin_fee ?? 5000,
-                        total_price: Number(editData.harga) + (editData.admin_fee ?? 5000),
-                        payment_method: editData.payment_method ?? "Transfer Bank",
-                        payment_date: editData.payment_date ?? editData.tanggal,
-                        transaction_status: editData.transaction_status ?? "paid",
-                      }),
-                    });
-
-                    if (response.ok) {
-                      await loadShipments();
-                      setEditData(null);
-                      alert("Shipment berhasil diperbarui!");
-
-                    } else {
-
-                      alert("Gagal update shipment");
-
-                    }
-                  }}
+                  type="submit"
                   className="bg-blue-600 text-white py-2 rounded-lg"
                 >
                   Simpan
                 </button>
               </div>
 
-            </div>
+            </form>
 
           </div>
         </div>
