@@ -260,6 +260,7 @@ export default function ShipmentsPage() {
     if (response.ok) {
       await loadShipments();
       setOpen(false);
+      alert("Shipment berhasil ditambahkan!");
 
       setForm({
         tanggal: "",
@@ -1038,6 +1039,7 @@ export default function ShipmentsPage() {
                     if (response.ok) {
                       await loadShipments();
                       setEditData(null);
+                      alert("Shipment berhasil diperbarui!");
 
                     } else {
 
@@ -1093,6 +1095,7 @@ export default function ShipmentsPage() {
                   if (response.ok) {
                     await loadShipments();
                     setDeleteData(null);
+                    alert("Shipment berhasil dihapus!");
 
                   } else {
 

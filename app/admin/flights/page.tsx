@@ -118,6 +118,7 @@ export default function FlightsPage() {
 
       setFlights(updatedFlights);
       closeModal();
+      alert("Flight berhasil diperbarui!");
     } catch (error) {
       console.error("Update failed:", error);
       alert("Gagal memperbarui status penerbangan. Coba lagi.");
