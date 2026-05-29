@@ -661,6 +661,18 @@ export default function ShipmentsPage() {
                 />
               </div>
 
+              {/* HARGA */}
+              <div>
+                <label className="text-sm">Harga Pengiriman</label>
+                <input
+                  required
+                  type="number"
+                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  value={form.harga}
+                  onChange={(e) => setForm({ ...form, harga: e.target.value })}
+                />
+              </div>
+
               {/* JENIS KENDARAAN */}
               <div>
                 <label className="text-sm">Jenis Kendaraan</label>
@@ -881,9 +893,9 @@ export default function ShipmentsPage() {
                   required
                   type="number"
                   className="w-full border rounded-lg px-3 py-2 mt-1"
-                  value={form.harga}
+                  value={editData.harga || ""}
                   onChange={(e) =>
-                    setForm({ ...form, harga: e.target.value })
+                    setEditData({ ...editData, harga: e.target.value })
                   }
                 />
               </div>
@@ -1016,7 +1028,7 @@ export default function ShipmentsPage() {
                         item_status: editData.item_status ?? "safe",
                         shipping_price: Number(editData.harga),
                         admin_fee: editData.admin_fee ?? 5000,
-                        total_price: editData.total_price ?? (Number(editData.harga) + (editData.admin_fee ?? 5000)),
+                        total_price: Number(editData.harga) + (editData.admin_fee ?? 5000),
                         payment_method: editData.payment_method ?? "Transfer Bank",
                         payment_date: editData.payment_date ?? editData.tanggal,
                         transaction_status: editData.transaction_status ?? "paid",
