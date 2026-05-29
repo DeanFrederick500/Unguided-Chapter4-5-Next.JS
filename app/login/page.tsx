@@ -20,11 +20,13 @@ export default function LoginPage() {
     }
 
     if (email === "admin@expressair.com" && password === "admin123") {
+      localStorage.setItem("role", "admin");
       router.push("/admin");
     } else if (
       email === "operator@expressair.com" &&
       password === "operator123"
     ) {
+      localStorage.setItem("role", "operator");
       router.push("/operator");
     } else {
       setError("Email atau password salah");

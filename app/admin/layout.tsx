@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -19,7 +19,21 @@ export default function AdminLayout({ children }: any) {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(true);
+  const [authorized, setAuthorized] = useState(false);
 
+  useEffect(() => {
+    const role = localStorage.getItem("role");
+
+    if (role === "admin") {
+      setAuthorized(true);
+    } else {
+      router.push("/must-login");
+    }
+  }, [router]);
+
+  if (!authorized) {
+    return null;
+  }
   const menu = [
     { name: "Dashboard", path: "/admin", icon: LayoutDashboard },
     { name: "Shipments", path: "/admin/shipments", icon: Package },

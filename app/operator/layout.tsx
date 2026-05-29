@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -18,6 +18,21 @@ export default function AdminLayout({ children }: any) {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(true);
+  const [authorized, setAuthorized] = useState(false);
+
+  useEffect(() => {
+    const role = localStorage.getItem("role");
+
+    if (role === "operator") {
+      setAuthorized(true);
+    } else {
+      router.push("/must-login");
+    }
+  }, [router]);
+
+  if (!authorized) {
+    return null;
+  }
 
   const menu = [
     { name: "Dashboard", path: "/operator", icon: LayoutDashboard },
@@ -80,8 +95,8 @@ export default function AdminLayout({ children }: any) {
               <Link key={item.path} href={item.path}>
                 <div
                   className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition ${active
-                      ? "bg-white text-blue-700"
-                      : "hover:bg-blue-600"
+                    ? "bg-white text-blue-700"
+                    : "hover:bg-blue-600"
                     }`}
                 >
                   <Icon size={20} />
