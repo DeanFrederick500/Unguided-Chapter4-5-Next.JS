@@ -5,6 +5,12 @@ import { Inter } from "next/font/google";
 import { Suspense } from "react";
 import Loading from "./loading";
 
+
+export const metadata = {
+  title: "ExpressAir Cargo System",
+  description: "Perusahaan ekspedisi yang menyediakan layanan pengiriman barang dengan berbagai pilihan armada dan layanan tambahan untuk memenuhi kebutuhan pelanggan",
+};
+
 const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
