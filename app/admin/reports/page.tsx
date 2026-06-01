@@ -95,6 +95,8 @@ export default function ReportPage() {
 
         const data = await res.json();
 
+        console.log("SHIPMENTS:", data);
+
         setShipments(data);
 
       } catch (error) {
