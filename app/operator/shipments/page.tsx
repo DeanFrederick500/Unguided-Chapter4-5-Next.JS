@@ -12,6 +12,29 @@ export default function ShipmentsPage() {
   const [shipments, setShipments] = useState<any[]>([]);
   const [itemTypes, setItemTypes] = useState<string[]>([]);
 
+  const cities = [
+    { code: "JKT", name: "Jakarta" },
+    { code: "SBY", name: "Surabaya" },
+    { code: "BDG", name: "Bandung" },
+    { code: "SMG", name: "Semarang" },
+    { code: "YIA", name: "Yogyakarta" },
+    { code: "SOC", name: "Solo" },
+    { code: "MLG", name: "Malang" },
+    { code: "DPS", name: "Denpasar" },
+    { code: "MDN", name: "Medan" },
+    { code: "PKU", name: "Pekanbaru" },
+    { code: "PLM", name: "Palembang" },
+    { code: "BPN", name: "Balikpapan" },
+    { code: "SMD", name: "Samarinda" },
+    { code: "MKS", name: "Makassar" },
+    { code: "MND", name: "Manado" },
+    { code: "JMB", name: "Jambi" },
+    { code: "BJM", name: "Banjarmasin" },
+    { code: "PNK", name: "Pontianak" },
+    { code: "BTM", name: "Batam" },
+    { code: "AMQ", name: "Ambon" },
+  ];
+
   const loadShipments = async () => {
     try {
       const response = await fetch("/api/shipments");
@@ -97,6 +120,9 @@ export default function ShipmentsPage() {
   const [showFilter, setShowFilter] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [editErrors, setEditErrors] = useState<Record<string, string>>({});
+
   const [flightError, setFlightError] = useState("");
   const [beratError, setBeratError] = useState("");
   const [hargaError, setHargaError] = useState("");
@@ -201,8 +227,52 @@ export default function ShipmentsPage() {
     setCurrentPage(1);
   }, [search, statusFilter]);
 
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+    if (!form.tanggal) errors.tanggal = "Tanggal Kirim tidak boleh kosong";
+    if (!form.pengirim) errors.pengirim = "Nama Pengirim tidak boleh kosong";
+    if (!form.penerima) errors.penerima = "Nama Penerima tidak boleh kosong";
+    if (!form.telepon) errors.telepon = "Nomor Telepon Pengirim tidak boleh kosong";
+    if (!form.teleponPenerima) errors.teleponPenerima = "Nomor Telepon Penerima tidak boleh kosong";
+    if (!form.asal) errors.asal = "Asal tidak boleh kosong";
+    if (!form.tujuan) errors.tujuan = "Tujuan tidak boleh kosong";
+    if (!form.namaBarang) errors.namaBarang = "Nama Barang tidak boleh kosong";
+    if (!form.jenisBarang) errors.jenisBarang = "Jenis Barang tidak boleh kosong";
+    if (!form.berat) errors.berat = "Berat tidak boleh kosong";
+    if (!form.harga) errors.harga = "Harga Pengiriman tidak boleh kosong";
+    if (!form.kendaraan) errors.kendaraan = "Jenis Kendaraan tidak boleh kosong";
+    if (!form.jenisPengiriman) errors.jenisPengiriman = "Jenis Pengiriman tidak boleh kosong";
+    if (!form.flight) errors.flight = "No. Penerbangan tidak boleh kosong";
+    if (!form.deskripsi) errors.deskripsi = "Deskripsi Barang tidak boleh kosong";
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const validateEdit = () => {
+    const errors: Record<string, string> = {};
+    if (!editData.item_name) errors.item_name = "Nama Barang tidak boleh kosong";
+    if (!editData.jenisBarang) errors.jenisBarang = "Jenis Barang tidak boleh kosong";
+    if (!editData.berat) errors.berat = "Berat tidak boleh kosong";
+    if (!editData.telepon) errors.telepon = "Nomor Telepon Pengirim tidak boleh kosong";
+    if (!editData.teleponPenerima) errors.teleponPenerima = "Nomor Telepon Penerima tidak boleh kosong";
+    if (!editData.kendaraan) errors.kendaraan = "Jenis Kendaraan tidak boleh kosong";
+    if (!editData.jenisPengiriman) errors.jenisPengiriman = "Jenis Pengiriman tidak boleh kosong";
+    if (!editData.harga) errors.harga = "Harga Pengiriman tidak boleh kosong";
+    if (!editData.flight) errors.flight = "No. Penerbangan tidak boleh kosong";
+    if (!editData.asal) errors.asal = "Asal tidak boleh kosong";
+    if (!editData.tujuan) errors.tujuan = "Tujuan tidak boleh kosong";
+    if (!editData.status) errors.status = "Status Baru tidak boleh kosong";
+    if (!editData.deskripsi) errors.deskripsi = "Deskripsi Barang tidak boleh kosong";
+
+    setEditErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+
+    if (!validateForm()) return;
 
     const selectedFlight = flights.find((f) => f.flight_number === form.flight);
     if (!selectedFlight) {
@@ -297,6 +367,7 @@ export default function ShipmentsPage() {
         deskripsi: "",
       });
 
+      setFormErrors({});
     } else {
 
       const errorData = await response.json();
@@ -310,6 +381,8 @@ export default function ShipmentsPage() {
 
   const handleEditSubmit = async (e: any) => {
     e.preventDefault();
+
+    if (!validateEdit()) return;
 
     const selectedFlight = flights.find((f) => f.flight_number === editData.flight);
     if (!selectedFlight) {
@@ -372,7 +445,10 @@ export default function ShipmentsPage() {
         </div>
 
         <button
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            setOpen(true);
+            setFormErrors({});
+          }}
           className="bg-blueprimary text-white px-4 py-2 rounded-lg flex items-center gap-2"
         >
           <Plus size={16} /> Tambah Shipment
@@ -501,6 +577,7 @@ export default function ShipmentsPage() {
                       onClick={() => {
                         setEditData(s);
                         setNewStatus(s.status);
+                        setEditErrors({});
                       }}
                     />
 
@@ -561,7 +638,10 @@ export default function ShipmentsPage() {
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center">
           <div className="bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl p-6 relative">
 
-            <button onClick={() => setOpen(false)} className="absolute right-4 top-4">
+            <button onClick={() => {
+              setOpen(false);
+              setFormErrors({});
+            }} className="absolute right-4 top-4">
               <X />
             </button>
 
@@ -576,14 +656,15 @@ export default function ShipmentsPage() {
                 <label className="text-sm">Tanggal Kirim</label>
 
                 <input
-                  required
                   type="date"
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.tanggal ? 'border-red-500' : ''}`}
                   value={form.tanggal}
-                  onChange={(e) =>
-                    setForm({ ...form, tanggal: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setForm({ ...form, tanggal: e.target.value });
+                    if (formErrors.tanggal) setFormErrors({ ...formErrors, tanggal: "" });
+                  }}
                 />
+                {formErrors.tanggal && <p className="text-red-500 text-xs mt-1">{formErrors.tanggal}</p>}
               </div>
 
               {/* JENIS PENGIRIMAN */}
@@ -591,21 +672,22 @@ export default function ShipmentsPage() {
                 <label className="text-sm">Jenis Pengiriman</label>
 
                 <select
-                  required
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.jenisPengiriman ? 'border-red-500' : ''}`}
                   value={form.jenisPengiriman}
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setForm({
                       ...form,
                       jenisPengiriman: e.target.value,
-                    })
-                  }
+                    });
+                    if (formErrors.jenisPengiriman) setFormErrors({ ...formErrors, jenisPengiriman: "" });
+                  }}
                 >
                   <option value="">Pilih</option>
                   <option value="Biasa">Biasa</option>
                   <option value="Cepat">Cepat</option>
                   <option value="VVIP">VVIP</option>
                 </select>
+                {formErrors.jenisPengiriman && <p className="text-red-500 text-xs mt-1">{formErrors.jenisPengiriman}</p>}
               </div>
 
               {/* PENGIRIM */}
@@ -613,13 +695,14 @@ export default function ShipmentsPage() {
                 <label className="text-sm">Nama Pengirim</label>
 
                 <input
-                  required
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.pengirim ? 'border-red-500' : ''}`}
                   value={form.pengirim}
-                  onChange={(e) =>
-                    setForm({ ...form, pengirim: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setForm({ ...form, pengirim: e.target.value });
+                    if (formErrors.pengirim) setFormErrors({ ...formErrors, pengirim: "" });
+                  }}
                 />
+                {formErrors.pengirim && <p className="text-red-500 text-xs mt-1">{formErrors.pengirim}</p>}
               </div>
 
               {/* PENERIMA */}
@@ -627,13 +710,14 @@ export default function ShipmentsPage() {
                 <label className="text-sm">Nama Penerima</label>
 
                 <input
-                  required
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.penerima ? 'border-red-500' : ''}`}
                   value={form.penerima}
-                  onChange={(e) =>
-                    setForm({ ...form, penerima: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setForm({ ...form, penerima: e.target.value });
+                    if (formErrors.penerima) setFormErrors({ ...formErrors, penerima: "" });
+                  }}
                 />
+                {formErrors.penerima && <p className="text-red-500 text-xs mt-1">{formErrors.penerima}</p>}
               </div>
 
               {/* TELEPON */}
@@ -641,13 +725,14 @@ export default function ShipmentsPage() {
                 <label className="text-sm">No Telepon Pengirim</label>
 
                 <input
-                  required
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.telepon ? 'border-red-500' : ''}`}
                   value={form.telepon}
-                  onChange={(e) =>
-                    setForm({ ...form, telepon: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setForm({ ...form, telepon: e.target.value });
+                    if (formErrors.telepon) setFormErrors({ ...formErrors, telepon: "" });
+                  }}
                 />
+                {formErrors.telepon && <p className="text-red-500 text-xs mt-1">{formErrors.telepon}</p>}
               </div>
 
               {/* TELEPON PENERIMA */}
@@ -655,13 +740,14 @@ export default function ShipmentsPage() {
                 <label className="text-sm">No Telepon Penerima</label>
 
                 <input
-                  required
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.teleponPenerima ? 'border-red-500' : ''}`}
                   value={form.teleponPenerima}
-                  onChange={(e) =>
-                    setForm({ ...form, teleponPenerima: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setForm({ ...form, teleponPenerima: e.target.value });
+                    if (formErrors.teleponPenerima) setFormErrors({ ...formErrors, teleponPenerima: "" });
+                  }}
                 />
+                {formErrors.teleponPenerima && <p className="text-red-500 text-xs mt-1">{formErrors.teleponPenerima}</p>}
               </div>
 
               {/* NAMA BARANG */}
@@ -669,25 +755,26 @@ export default function ShipmentsPage() {
                 <label className="text-sm">Nama Barang</label>
 
                 <input
-                  required
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.namaBarang ? 'border-red-500' : ''}`}
                   value={form.namaBarang}
-                  onChange={(e) =>
-                    setForm({ ...form, namaBarang: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setForm({ ...form, namaBarang: e.target.value });
+                    if (formErrors.namaBarang) setFormErrors({ ...formErrors, namaBarang: "" });
+                  }}
                 />
+                {formErrors.namaBarang && <p className="text-red-500 text-xs mt-1">{formErrors.namaBarang}</p>}
               </div>
 
               {/* JENIS BARANG */}
               <div>
                 <label className="text-sm">Jenis Barang</label>
                 <select
-                  required
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.jenisBarang ? 'border-red-500' : ''}`}
                   value={form.jenisBarang}
-                  onChange={(e) =>
-                    setForm({ ...form, jenisBarang: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setForm({ ...form, jenisBarang: e.target.value });
+                    if (formErrors.jenisBarang) setFormErrors({ ...formErrors, jenisBarang: "" });
+                  }}
                 >
                   <option value="">Pilih Jenis Barang</option>
                   {itemTypes.map((type) => (
@@ -703,70 +790,91 @@ export default function ShipmentsPage() {
                     </>
                   )}
                 </select>
+                {formErrors.jenisBarang && <p className="text-red-500 text-xs mt-1">{formErrors.jenisBarang}</p>}
               </div>
 
               {/* ASAL */}
               <div>
                 <label className="text-sm">Asal</label>
-                <input
-                  required
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                <select
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.asal ? 'border-red-500' : ''}`}
                   value={form.asal}
-                  onChange={(e) => setForm({ ...form, asal: e.target.value })}
-                />
+                  onChange={(e) => {
+                    setForm({ ...form, asal: e.target.value });
+                    if (formErrors.asal) setFormErrors({ ...formErrors, asal: "" });
+                  }}
+                >
+                  <option value="">Pilih Kota Asal</option>
+                  {cities.map((city) => (
+                    <option key={city.code} value={`${city.name} (${city.code})`}>
+                      {city.name} ({city.code})
+                    </option>
+                  ))}
+                </select>
+                {formErrors.asal && <p className="text-red-500 text-xs mt-1">{formErrors.asal}</p>}
               </div>
 
               {/* TUJUAN */}
               <div>
                 <label className="text-sm">Tujuan</label>
-                <input
-                  required
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                <select
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.tujuan ? 'border-red-500' : ''}`}
                   value={form.tujuan}
-                  onChange={(e) => setForm({ ...form, tujuan: e.target.value })}
-                />
+                  onChange={(e) => {
+                    setForm({ ...form, tujuan: e.target.value });
+                    if (formErrors.tujuan) setFormErrors({ ...formErrors, tujuan: "" });
+                  }}
+                >
+                  <option value="">Pilih Kota Tujuan</option>
+                  {cities.map((city) => (
+                    <option key={city.code} value={`${city.name} (${city.code})`}>
+                      {city.name} ({city.code})
+                    </option>
+                  ))}
+                </select>
+                {formErrors.tujuan && <p className="text-red-500 text-xs mt-1">{formErrors.tujuan}</p>}
               </div>
 
               {/* BERAT */}
               <div>
                 <label className="text-sm">Berat (kg)</label>
                 <input
-                  required
                   type="number"
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.berat || beratError ? 'border-red-500' : ''}`}
                   value={form.berat}
                   onChange={(e) => {
                     const val = e.target.value;
                     setForm({ ...form, berat: val });
+                    if (formErrors.berat) setFormErrors({ ...formErrors, berat: "" });
                     if (val === "" || isNaN(Number(val))) {
-                      setBeratError("anda harus memasukan angka");
+                      setBeratError("Anda harus memasukkan angka");
                     } else {
                       setBeratError("");
                     }
                   }}
                 />
-                {beratError && <p className="text-red-500 text-xs mt-1">{beratError}</p>}
+                {(formErrors.berat || beratError) && <p className="text-red-500 text-xs mt-1">{formErrors.berat || beratError}</p>}
               </div>
 
               {/* HARGA */}
               <div>
                 <label className="text-sm">Harga Pengiriman</label>
                 <input
-                  required
                   type="number"
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.harga || hargaError ? 'border-red-500' : ''}`}
                   value={form.harga}
                   onChange={(e) => {
                     const val = e.target.value;
                     setForm({ ...form, harga: val });
+                    if (formErrors.harga) setFormErrors({ ...formErrors, harga: "" });
                     if (val === "" || isNaN(Number(val))) {
-                      setHargaError("anda harus memasukan angka");
+                      setHargaError("Anda harus memasukkan angka");
                     } else {
                       setHargaError("");
                     }
                   }}
                 />
-                {hargaError && <p className="text-red-500 text-xs mt-1">{hargaError}</p>}
+                {(formErrors.harga || hargaError) && <p className="text-red-500 text-xs mt-1">{formErrors.harga || hargaError}</p>}
               </div>
 
               {/* JENIS KENDARAAN */}
@@ -774,12 +882,12 @@ export default function ShipmentsPage() {
                 <label className="text-sm">Jenis Kendaraan</label>
 
                 <select
-                  required
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.kendaraan ? 'border-red-500' : ''}`}
                   value={form.kendaraan}
-                  onChange={(e) =>
-                    setForm({ ...form, kendaraan: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setForm({ ...form, kendaraan: e.target.value });
+                    if (formErrors.kendaraan) setFormErrors({ ...formErrors, kendaraan: "" });
+                  }}
                 >
                   <option value="">Pilih Kendaraan</option>
                   {vehicles.map((vehicle) => (
@@ -788,19 +896,20 @@ export default function ShipmentsPage() {
                     </option>
                   ))}
                 </select>
+                {formErrors.kendaraan && <p className="text-red-500 text-xs mt-1">{formErrors.kendaraan}</p>}
               </div>
 
               {/* FLIGHT */}
               <div>
                 <label className="text-sm">No. Penerbangan</label>
                 <select
-                  required
                   value={form.flight}
                   onChange={(e) => {
                     setForm({ ...form, flight: e.target.value });
                     setFlightError("");
+                    if (formErrors.flight) setFormErrors({ ...formErrors, flight: "" });
                   }}
-                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${flightError ? "border-red-500" : ""}`}
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.flight || flightError ? "border-red-500" : ""}`}
                 >
                   <option value="">Pilih No. Penerbangan</option>
                   {flights.map((flight) => (
@@ -810,9 +919,9 @@ export default function ShipmentsPage() {
                   ))}
                 </select>
 
-                {flightError && (
+                {(formErrors.flight || flightError) && (
                   <p className="text-red-500 text-xs mt-1">
-                    {flightError}
+                    {formErrors.flight || flightError}
                   </p>
                 )}
               </div>
@@ -823,18 +932,22 @@ export default function ShipmentsPage() {
                 <label className="text-sm">Deskripsi Barang</label>
 
                 <textarea
-                  required
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.deskripsi ? 'border-red-500' : ''}`}
                   value={form.deskripsi}
-                  onChange={(e) =>
-                    setForm({ ...form, deskripsi: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setForm({ ...form, deskripsi: e.target.value });
+                    if (formErrors.deskripsi) setFormErrors({ ...formErrors, deskripsi: "" });
+                  }}
                 />
+                {formErrors.deskripsi && <p className="text-red-500 text-xs mt-1">{formErrors.deskripsi}</p>}
               </div>
 
               {/* BUTTON */}
               <div className="md:col-span-2 grid grid-cols-2 gap-3 pt-2">
-                <button type="button" onClick={() => setOpen(false)} className="border py-2 rounded-lg">
+                <button type="button" onClick={() => {
+                  setOpen(false);
+                  setFormErrors({});
+                }} className="border py-2 rounded-lg">
                   Batal
                 </button>
                 <button type="submit" className="bg-blue-600 text-white py-2 rounded-lg">
@@ -852,7 +965,10 @@ export default function ShipmentsPage() {
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center">
           <div className="bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl p-6 relative">
 
-            <button onClick={() => setEditData(null)} className="absolute right-4 top-4">
+            <button onClick={() => {
+              setEditData(null);
+              setEditErrors({});
+            }} className="absolute right-4 top-4">
               <X />
             </button>
 
@@ -867,21 +983,26 @@ export default function ShipmentsPage() {
                 <label className="text-sm">Nama Barang</label>
 
                 <input
-                  required
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.item_name ? 'border-red-500' : ''}`}
                   value={editData.item_name || ""}
-                  onChange={(e) => setEditData({ ...editData, item_name: e.target.value })}
+                  onChange={(e) => {
+                    setEditData({ ...editData, item_name: e.target.value });
+                    if (editErrors.item_name) setEditErrors({ ...editErrors, item_name: "" });
+                  }}
                 />
+                {editErrors.item_name && <p className="text-red-500 text-xs mt-1">{editErrors.item_name}</p>}
               </div>
 
               <div>
                 <label className="text-sm">Jenis Barang</label>
 
                 <select
-                  required
                   value={editData.jenisBarang || ""}
-                  onChange={(e) => setEditData({ ...editData, jenisBarang: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  onChange={(e) => {
+                    setEditData({ ...editData, jenisBarang: e.target.value });
+                    if (editErrors.jenisBarang) setEditErrors({ ...editErrors, jenisBarang: "" });
+                  }}
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.jenisBarang ? 'border-red-500' : ''}`}
                 >
                   <option value="">Pilih Jenis Barang</option>
                   {itemTypes.map((type) => (
@@ -897,6 +1018,7 @@ export default function ShipmentsPage() {
                     </>
                   )}
                 </select>
+                {editErrors.jenisBarang && <p className="text-red-500 text-xs mt-1">{editErrors.jenisBarang}</p>}
               </div>
 
               <div>
@@ -904,11 +1026,14 @@ export default function ShipmentsPage() {
 
                 <input
                   type="number"
-                  required
                   value={editData.berat || ""}
-                  onChange={(e) => setEditData({ ...editData, berat: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  onChange={(e) => {
+                    setEditData({ ...editData, berat: e.target.value });
+                    if (editErrors.berat) setEditErrors({ ...editErrors, berat: "" });
+                  }}
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.berat ? 'border-red-500' : ''}`}
                 />
+                {editErrors.berat && <p className="text-red-500 text-xs mt-1">{editErrors.berat}</p>}
               </div>
 
               {/* BARIS 2 */}
@@ -916,32 +1041,40 @@ export default function ShipmentsPage() {
                 <label className="text-sm">No Telepon Pengirim</label>
 
                 <input
-                  required
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.telepon ? 'border-red-500' : ''}`}
                   value={editData.telepon || ""}
-                  onChange={(e) => setEditData({ ...editData, telepon: e.target.value })}
+                  onChange={(e) => {
+                    setEditData({ ...editData, telepon: e.target.value });
+                    if (editErrors.telepon) setEditErrors({ ...editErrors, telepon: "" });
+                  }}
                 />
+                {editErrors.telepon && <p className="text-red-500 text-xs mt-1">{editErrors.telepon}</p>}
               </div>
 
               <div>
                 <label className="text-sm">No Telepon Penerima</label>
 
                 <input
-                  required
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.teleponPenerima ? 'border-red-500' : ''}`}
                   value={editData.teleponPenerima || ""}
-                  onChange={(e) => setEditData({ ...editData, teleponPenerima: e.target.value })}
+                  onChange={(e) => {
+                    setEditData({ ...editData, teleponPenerima: e.target.value });
+                    if (editErrors.teleponPenerima) setEditErrors({ ...editErrors, teleponPenerima: "" });
+                  }}
                 />
+                {editErrors.teleponPenerima && <p className="text-red-500 text-xs mt-1">{editErrors.teleponPenerima}</p>}
               </div>
 
               {/* BARIS 3 */}
               <div>
                 <label className="text-sm">Jenis Kendaraan</label>
                 <select
-                  required
                   value={editData.kendaraan || ""}
-                  onChange={(e) => setEditData({ ...editData, kendaraan: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  onChange={(e) => {
+                    setEditData({ ...editData, kendaraan: e.target.value });
+                    if (editErrors.kendaraan) setEditErrors({ ...editErrors, kendaraan: "" });
+                  }}
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.kendaraan ? 'border-red-500' : ''}`}
                 >
                   <option value="">Pilih Kendaraan</option>
                   {vehicles.map((vehicle) => (
@@ -950,21 +1083,26 @@ export default function ShipmentsPage() {
                     </option>
                   ))}
                 </select>
+                {editErrors.kendaraan && <p className="text-red-500 text-xs mt-1">{editErrors.kendaraan}</p>}
               </div>
 
               <div>
                 <label className="text-sm">Jenis Pengiriman</label>
 
                 <select
-                  required
-                  value={editData.jenisPengiriman}
-                  onChange={(e) => setEditData({ ...editData, jenisPengiriman: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2"
+                  value={editData.jenisPengiriman || ""}
+                  onChange={(e) => {
+                    setEditData({ ...editData, jenisPengiriman: e.target.value });
+                    if (editErrors.jenisPengiriman) setEditErrors({ ...editErrors, jenisPengiriman: "" });
+                  }}
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.jenisPengiriman ? 'border-red-500' : ''}`}
                 >
+                  <option value="">Pilih Jenis Pengiriman</option>
                   <option value="Biasa">Biasa</option>
                   <option value="Cepat">Cepat</option>
                   <option value="VVIP">VVIP</option>
                 </select>
+                {editErrors.jenisPengiriman && <p className="text-red-500 text-xs mt-1">{editErrors.jenisPengiriman}</p>}
               </div>
 
               {/* BARIS 4 */}
@@ -972,18 +1110,20 @@ export default function ShipmentsPage() {
                 <label className="text-sm">Harga Pengiriman</label>
 
                 <input
-                  required
                   type="number"
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.harga ? 'border-red-500' : ''}`}
                   value={editData.harga || ""}
-                  onChange={(e) => setEditData({ ...editData, harga: e.target.value })}
+                  onChange={(e) => {
+                    setEditData({ ...editData, harga: e.target.value });
+                    if (editErrors.harga) setEditErrors({ ...editErrors, harga: "" });
+                  }}
                 />
+                {editErrors.harga && <p className="text-red-500 text-xs mt-1">{editErrors.harga}</p>}
               </div>
 
               <div>
                 <label className="text-sm">No. Penerbangan</label>
                 <select
-                  required
                   value={editData.flight || ""}
                   onChange={(e) => {
                     const selectedFlight = flights.find((f) => f.flight_number === e.target.value);
@@ -992,8 +1132,9 @@ export default function ShipmentsPage() {
                       flight: e.target.value,
                       status: selectedFlight ? selectedFlight.status : editData.status,
                     });
+                    if (editErrors.flight) setEditErrors({ ...editErrors, flight: "" });
                   }}
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.flight ? 'border-red-500' : ''}`}
                 >
                   <option value="">Pilih No. Penerbangan</option>
                   {flights.map((flight) => (
@@ -1002,37 +1143,46 @@ export default function ShipmentsPage() {
                     </option>
                   ))}
                 </select>
+                {editErrors.flight && <p className="text-red-500 text-xs mt-1">{editErrors.flight}</p>}
               </div>
 
               {/* BARIS 5 */}
               <div>
                 <label className="text-sm">Asal</label>
                 <input
-                  required
-                  value={editData.asal}
-                  onChange={(e) => setEditData({ ...editData, asal: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2"
+                  value={editData.asal || ""}
+                  onChange={(e) => {
+                    setEditData({ ...editData, asal: e.target.value });
+                    if (editErrors.asal) setEditErrors({ ...editErrors, asal: "" });
+                  }}
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.asal ? 'border-red-500' : ''}`}
                 />
+                {editErrors.asal && <p className="text-red-500 text-xs mt-1">{editErrors.asal}</p>}
               </div>
 
               <div>
                 <label className="text-sm">Tujuan</label>
                 <input
-                  required
-                  value={editData.tujuan}
-                  onChange={(e) => setEditData({ ...editData, tujuan: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2"
+                  value={editData.tujuan || ""}
+                  onChange={(e) => {
+                    setEditData({ ...editData, tujuan: e.target.value });
+                    if (editErrors.tujuan) setEditErrors({ ...editErrors, tujuan: "" });
+                  }}
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.tujuan ? 'border-red-500' : ''}`}
                 />
+                {editErrors.tujuan && <p className="text-red-500 text-xs mt-1">{editErrors.tujuan}</p>}
               </div>
 
               {/* BARIS 6 */}
               <div>
                 <label className="text-sm">Status Baru</label>
                 <select
-                  required
                   value={editData.status || ""}
-                  onChange={(e) => setEditData({ ...editData, status: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  onChange={(e) => {
+                    setEditData({ ...editData, status: e.target.value });
+                    if (editErrors.status) setEditErrors({ ...editErrors, status: "" });
+                  }}
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.status ? 'border-red-500' : ''}`}
                 >
                   <option value="" disabled>Pilih Status</option>
                   <option value="Received">Received</option>
@@ -1043,23 +1193,30 @@ export default function ShipmentsPage() {
                   <option value="Landed">Landed</option>
                   <option value="Delivered">Delivered</option>
                 </select>
+                {editErrors.status && <p className="text-red-500 text-xs mt-1">{editErrors.status}</p>}
               </div>
 
               <div>
                 <label className="text-sm">Deskripsi Barang</label>
 
                 <textarea
-                  required
-                  value={editData.deskripsi}
-                  onChange={(e) => setEditData({ ...editData, deskripsi: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2 mt-1"
+                  value={editData.deskripsi || ""}
+                  onChange={(e) => {
+                    setEditData({ ...editData, deskripsi: e.target.value });
+                    if (editErrors.deskripsi) setEditErrors({ ...editErrors, deskripsi: "" });
+                  }}
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.deskripsi ? 'border-red-500' : ''}`}
                 />
+                {editErrors.deskripsi && <p className="text-red-500 text-xs mt-1">{editErrors.deskripsi}</p>}
               </div>
 
               <div className="md:col-span-2 grid grid-cols-2 gap-3 pt-2">
                 <button
                   type="button"
-                  onClick={() => setEditData(null)}
+                  onClick={() => {
+                    setEditData(null);
+                    setEditErrors({});
+                  }}
                   className="border py-2 rounded-lg"
                 >
                   Batal

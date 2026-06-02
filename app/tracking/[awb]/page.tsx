@@ -1,7 +1,6 @@
 "use client";
 
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
+
 
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -24,7 +23,7 @@ export default function DetailShipment() {
       try {
         const res = await fetch(`/api/shipments?awb=${encodeURIComponent(awb)}`);
         const result = await res.json();
-        
+
         if (result && result.length > 0) {
           setData(result[0]);
         } else {
@@ -97,10 +96,18 @@ export default function DetailShipment() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+
 
       <main className="bg-gray-50 w-full pt-28 flex-1">
         <div className="max-w-6xl mx-auto px-6 py-10">
+
+          <button
+            onClick={() => router.push("/")}
+            className="-mt-20 mb-32 flex items-center gap-3 text-blue-600 hover:text-blue-800 transition font-bold text-2xl"
+          >
+            <ArrowLeft size={35} />
+            Kembali ke Profil Perusahaan
+          </button>
 
           <h1 className="text-5xl font-bold text-center text-darkblue mb-12">
             Pelacakan Cepat
@@ -264,7 +271,6 @@ export default function DetailShipment() {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }
