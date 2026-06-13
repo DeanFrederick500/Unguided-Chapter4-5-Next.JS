@@ -178,7 +178,11 @@ export default function ShipmentsPage() {
   const formatShipment = (item: any) => ({
     id: item.id,
     awb: item.awb_number,
-    tanggal: item.shipment_date,
+    tanggal: new Date(item.shipment_date).toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }),
     pengirim: item.sender_name,
     penerima: item.receiver_name,
     telepon: item.phone_number,
@@ -510,17 +514,17 @@ export default function ShipmentsPage() {
               <th className="p-3 text-left">Tanggal</th>
               <th className="p-3 text-left">Pengirim</th>
               <th className="p-3 text-left">Penerima</th>
-              <th className="p-3 text-left">Telepon Pengirim</th>
-              <th className="p-3 text-left">Telepon Penerima</th>
+              {/* <th className="p-3 text-left">Telepon Pengirim</th>
+              <th className="p-3 text-left">Telepon Penerima</th> */}
               <th className="p-3 text-left">Asal</th>
               <th className="p-3 text-left">Tujuan</th>
-              <th className="p-3 text-left">Nama Barang</th>
-              <th className="p-3 text-left">Harga</th>
+              {/* <th className="p-3 text-left">Nama Barang</th> */}
+              {/* <th className="p-3 text-left">Harga</th>
               <th className="p-3 text-left">Jenis Kendaraan</th>
-              <th className="p-3 text-left">Jenis Pengiriman</th>
+              <th className="p-3 text-left">Jenis Pengiriman</th> */}
               <th className="p-3 text-left">No. Penerbangan</th>
-              <th className="p-3 text-left">Status</th>
-              <th className="p-3 text-left">Aksi</th>
+              <th className="p-3 text-left text-center">Status</th>
+              <th className="p-3 text-left text-center">Aksi</th>
             </tr>
           </thead>
 
@@ -535,25 +539,25 @@ export default function ShipmentsPage() {
 
                 <td className="p-3">{s.penerima}</td>
 
-                <td className="p-3">{s.telepon || "-"}</td>
+                {/* <td className="p-3">{s.telepon || "-"}</td>
 
-                <td className="p-3">{s.teleponPenerima || "-"}</td>
+                <td className="p-3">{s.teleponPenerima || "-"}</td> */}
 
                 <td className="p-3">{s.asal}</td>
 
                 <td className="p-3">{s.tujuan}</td>
 
-                <td className="p-3">{s.item_name || "-"}</td>
+                {/* <td className="p-3">{s.item_name || "-"}</td> */}
 
-                <td className="p-3">Rp {s.harga}</td>
+                {/* <td className="p-3">Rp {s.harga}</td> */}
 
-                <td className="p-3">{s.kendaraan || "-"}</td>
+                {/* <td className="p-3">{s.kendaraan || "-"}</td> */}
 
-                <td className="p-3">{s.jenisPengiriman}</td>
+                {/* <td className="p-3">{s.jenisPengiriman}</td> */}
 
                 <td className="p-3">{s.flight || "-"}</td>
 
-                <td className="p-3">
+                <td className="p-3 text-center">
                   {s.status === "In Transit" && <span className="bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full text-xs">In Transit</span>}
                   {s.status === "Received" && <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs">Received</span>}
                   {s.status === "Delivered" && <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs">Delivered</span>}
@@ -735,14 +739,37 @@ export default function ShipmentsPage() {
                 <label className="text-sm">No Telepon Pengirim</label>
 
                 <input
-                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.telepon ? 'border-red-500' : ''}`}
+                  type="tel"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${
+                    formErrors.telepon ? "border-red-500" : ""
+                  }`}
                   value={form.telepon}
                   onChange={(e) => {
-                    setForm({ ...form, telepon: e.target.value });
-                    if (formErrors.telepon) setFormErrors({ ...formErrors, telepon: "" });
+                    const value = e.target.value
+                      .replace(/\D/g, "")
+                      .slice(0, 13);
+
+                    setForm({
+                      ...form,
+                      telepon: value,
+                    });
+
+                    if (formErrors.telepon) {
+                      setFormErrors({
+                        ...formErrors,
+                        telepon: "",
+                      });
+                    }
                   }}
                 />
-                {formErrors.telepon && <p className="text-red-500 text-xs mt-1">{formErrors.telepon}</p>}
+
+                {formErrors.telepon && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {formErrors.telepon}
+                  </p>
+                )}
               </div>
 
               {/* TELEPON PENERIMA */}
@@ -750,14 +777,37 @@ export default function ShipmentsPage() {
                 <label className="text-sm">No Telepon Penerima</label>
 
                 <input
-                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.teleponPenerima ? 'border-red-500' : ''}`}
+                  type="tel"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${
+                    formErrors.teleponPenerima ? "border-red-500" : ""
+                  }`}
                   value={form.teleponPenerima}
                   onChange={(e) => {
-                    setForm({ ...form, teleponPenerima: e.target.value });
-                    if (formErrors.teleponPenerima) setFormErrors({ ...formErrors, teleponPenerima: "" });
+                    const value = e.target.value
+                      .replace(/\D/g, "")
+                      .slice(0, 13);
+
+                    setForm({
+                      ...form,
+                      teleponPenerima: value,
+                    });
+
+                    if (formErrors.teleponPenerima) {
+                      setFormErrors({
+                        ...formErrors,
+                        teleponPenerima: "",
+                      });
+                    }
                   }}
                 />
-                {formErrors.teleponPenerima && <p className="text-red-500 text-xs mt-1">{formErrors.teleponPenerima}</p>}
+
+                {formErrors.teleponPenerima && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {formErrors.teleponPenerima}
+                  </p>
+                )}
               </div>
 
               {/* NAMA BARANG */}
