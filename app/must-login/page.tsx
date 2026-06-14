@@ -23,7 +23,7 @@ export default function MustLoginPage() {
               </div>
 
               <h2 className="text-2xl font-bold text-red-900">
-                Upss, Kamu Harus Login Dulu!!!
+                Anda harus login terlebih dahulu untuk mengakses halaman ini.
               </h2>
 
             </div>

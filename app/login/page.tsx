@@ -11,117 +11,157 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    setError("");
+
     if (!email || !password) {
-      setError("Semua field wajib diisi");
+      setError("Please fill in all required fields");
       return;
     }
 
-    if (email === "admin@expressair.com" && password === "admin123") {
-      localStorage.setItem("role", "admin");
-      router.push("/admin");
-    } else if (
-      email === "operator@expressair.com" &&
-      password === "operator123"
-    ) {
-      localStorage.setItem("role", "operator");
-      router.push("/operator");
-    } else {
-      setError("Email atau password salah");
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        setError(data.message || "Invalid email or password");
+        return;
+      }
+
+      localStorage.setItem("role", data.user.role);
+      localStorage.setItem("name", data.user.name);
+      localStorage.setItem("email", data.user.email);
+
+      if (data.user.role === "admin") {
+        router.push("/admin");
+      } else {
+        router.push("/operator");
+      }
+
+    } catch (error) {
+      setError("An error occurred while signing in");
     }
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-700 to-blue-500 px-4">
 
-      {/* LOGO */}
-      <div className="mb-6 flex items-center gap-4">
+      <div className="w-full max-w-md">
 
-        {/* ICON TANPA LATAR */}
-        <Image
-          src="/logo siweb biru.png"
-          alt="Logo ExpressAir"
-          width={80}
-          height={80}
-          className="object-contain"
-        />
+        {/* LOGO */}
+        <div className="mb-8 flex items-center justify-center gap-4">
 
-        {/* TEXT */}
-        <div>
-          <h1 className="text-4xl font-bold text-gray-900 leading-none">
-            ExpressAir
-          </h1>
+          <Image
+            src="/logo siweb.png"
+            alt="Logo ExpressAir"
+            width={90}
+            height={90}
+            className="object-contain"
+          />
 
-          <p className="text-gray-500 text-xl mt-1">
-            Cargo System
-          </p>
+          <div className="flex flex-col">
+            <h1 className="text-4xl font-bold text-white leading-none">
+              ExpressAir
+            </h1>
+
+            <p className="text-blue-100 text-base mt-1">
+              Cargo System
+            </p>
+          </div>
+
+        </div>
+
+        {/* CARD LOGIN */}
+        <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-8">
+
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-800">
+              Welcome Back
+            </h2>
+
+            <p className="text-gray-500 mt-2">
+              Sign in to access the ExpressAir Cargo System
+            </p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-5">
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email
+              </label>
+
+              <input
+                type="email"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Password
+              </label>
+
+              <input
+                type="password"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+              />
+            </div>
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="w-full bg-blue-700 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition duration-200 shadow-md"
+            >
+              Login
+            </button>
+
+          </form>
+
+          <div className="mt-8 pt-4 border-t text-center">
+            <p className="text-xs text-gray-500">
+              Air Freight • Shipment Tracking • Logistics Management
+            </p>
+          </div>
+
         </div>
 
       </div>
 
-      {/* CARD LOGIN */}
-      <div className="w-full max-w-md bg-white p-8 rounded-xl shadow">
-
-        <h2 className="text-2xl font-semibold mb-6 text-center">
-          Welcome to ExpressAir <br />Cargo System
-        </h2>
-
-        <form onSubmit={handleLogin} className="space-y-4">
-
-          <div>
-            <label className="block mb-1 text-gray-700">
-              Email
-            </label>
-
-            <input
-              type="email"
-              className="w-full border p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <label className="block mb-1 text-gray-700">
-              Password
-            </label>
-
-            <input
-              type="password"
-              className="w-full border p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-
-          {error && (
-            <div className="bg-red-100 text-red-600 p-2 rounded">
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            className="w-full bg-blue-700 text-white p-3 rounded-md hover:bg-blue-800 transition"
-          >
-            Login
-          </button>
-
-        </form>
-
-        {/* <div className="mt-6 border-t pt-4 text-center text-sm text-gray-500"> */}
-          {/* <p>Login menggunakan email sesuai role (admin/operator)</p> */}
-          {/* <p className="mt-2">
-            Demo: admin@expressair.com / admin123
-          </p>
-          <p>
-            operator@expressair.com / operator123
-          </p>
-        </div> */}
-
-      </div>
     </div>
   );
 }
+
+
+{/* <div className="mt-6 border-t pt-4 text-center text-sm text-gray-500"> */}
+  {/* <p>Login menggunakan email sesuai role (admin/operator)</p> */}
+  {/* <p className="mt-2">
+    Demo: admin@expressair.com / admin123
+  </p>
+  <p>
+    operator@expressair.com / operator123
+  </p>
+</div> */}
