@@ -69,7 +69,8 @@ export default function ShipmentsPage() {
               .filter((f: any) => f && f.flight_number)
               .map((f: any) => [f.flight_number, f])
           ).values()
-        );
+        ) as { flight_number: string; status: string }[];
+
         setFlights(unique);
       })
       .catch(() => {
@@ -85,7 +86,11 @@ export default function ShipmentsPage() {
           .map((v: any) => (typeof v === 'string' ? v : v?.vehicle_name || v?.name))
           .filter((name: any): name is string => typeof name === 'string' && name.trim() !== '');
         
-        const uniqueNames = Array.from(new Set(names));
+        const uniqueNames = Array.from(
+          new Set(names)
+        ) as string[];
+
+        setVehicles(uniqueNames);
         setVehicles(uniqueNames);
       })
       .catch(() => {
@@ -101,7 +106,11 @@ export default function ShipmentsPage() {
           .map((t: any) => (typeof t === 'string' ? t : t?.item_type || t?.name || t?.type_name))
           .filter((t: any): t is string => typeof t === 'string' && t.trim() !== '');
         
-        const uniqueTypes = Array.from(new Set(types));
+        const uniqueTypes = Array.from(
+          new Set(types)
+        ) as string[];
+
+        setItemTypes(uniqueTypes);
         console.log("Processed unique item types:", uniqueTypes); // Debugging: Log processed types
         setItemTypes(uniqueTypes);
       })
