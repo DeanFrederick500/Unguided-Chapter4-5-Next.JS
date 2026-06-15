@@ -264,6 +264,36 @@ export default function ShipmentsPage() {
     form.jenisPengiriman
   ]);
 
+  useEffect(() => {
+    if (
+      editData &&
+      editData.jenisBarang &&
+      editData.berat &&
+      editData.asal &&
+      editData.tujuan &&
+      editData.jenisPengiriman
+    ) {
+      const price = calculatePrice(
+        editData.jenisBarang,
+        Number(editData.berat),
+        editData.asal,
+        editData.tujuan,
+        editData.jenisPengiriman
+      );
+
+      setEditData((prev: any) => ({
+        ...prev,
+        harga: String(price),
+      }));
+    }
+  }, [
+    editData?.jenisBarang,
+    editData?.berat,
+    editData?.asal,
+    editData?.tujuan,
+    editData?.jenisPengiriman,
+  ]);
+
   const generateAWB = () => {
     const randomNumber = Math.floor(
       100000000 + Math.random() * 900000000
@@ -354,6 +384,13 @@ export default function ShipmentsPage() {
     if (!form.teleponPenerima) errors.teleponPenerima = "Nomor Telepon Penerima tidak boleh kosong";
     if (!form.asal) errors.asal = "Asal tidak boleh kosong";
     if (!form.tujuan) errors.tujuan = "Tujuan tidak boleh kosong";
+    if (
+      form.asal &&
+      form.tujuan &&
+      form.asal === form.tujuan
+    ) {
+      errors.tujuan = "Kota tujuan tidak boleh sama dengan kota asal";
+    }
     if (!form.namaBarang) errors.namaBarang = "Nama Barang tidak boleh kosong";
     if (!form.jenisBarang) errors.jenisBarang = "Jenis Barang tidak boleh kosong";
     if (!form.berat) errors.berat = "Berat tidak boleh kosong";
@@ -380,6 +417,13 @@ export default function ShipmentsPage() {
     if (!editData.flight) errors.flight = "No. Penerbangan tidak boleh kosong";
     if (!editData.asal) errors.asal = "Asal tidak boleh kosong";
     if (!editData.tujuan) errors.tujuan = "Tujuan tidak boleh kosong";
+    if (
+      editData.asal &&
+      editData.tujuan &&
+      editData.asal === editData.tujuan
+    ) {
+      errors.tujuan = "Kota tujuan tidak boleh sama dengan kota asal";
+    }
     if (!editData.status) errors.status = "Status Baru tidak boleh kosong";
     if (!editData.deskripsi) errors.deskripsi = "Deskripsi Barang tidak boleh kosong";
 
@@ -1035,7 +1079,7 @@ export default function ShipmentsPage() {
                 <input
                   type="number"
                   readOnly
-                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.harga || hargaError ? 'border-red-500' : ''}`}
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.harga || hargaError ? 'border-red-500' : ''} cursor-not-allowed`}
                   value={form.harga}
                   // onChange={(e) => {
                   //   const val = e.target.value;
@@ -1215,12 +1259,26 @@ export default function ShipmentsPage() {
                 <label className="text-sm">No Telepon Pengirim</label>
 
                 <input
-                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.telepon ? 'border-red-500' : ''}`}
+                  type="tel"
+                  inputMode="numeric"
                   value={editData.telepon || ""}
                   onChange={(e) => {
-                    setEditData({ ...editData, telepon: e.target.value });
-                    if (editErrors.telepon) setEditErrors({ ...editErrors, telepon: "" });
+                    const value = e.target.value.replace(/\D/g, "");
+
+                    setEditData({
+                      ...editData,
+                      telepon: value,
+                    });
+
+                    if (editErrors.telepon)
+                      setEditErrors({
+                        ...editErrors,
+                        telepon: "",
+                      });
                   }}
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${
+                    editErrors.telepon ? "border-red-500" : ""
+                  }`}
                 />
                 {editErrors.telepon && <p className="text-red-500 text-xs mt-1">{editErrors.telepon}</p>}
               </div>
@@ -1229,12 +1287,26 @@ export default function ShipmentsPage() {
                 <label className="text-sm">No Telepon Penerima</label>
 
                 <input
-                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.teleponPenerima ? 'border-red-500' : ''}`}
+                  type="tel"
+                  inputMode="numeric"
                   value={editData.teleponPenerima || ""}
                   onChange={(e) => {
-                    setEditData({ ...editData, teleponPenerima: e.target.value });
-                    if (editErrors.teleponPenerima) setEditErrors({ ...editErrors, teleponPenerima: "" });
+                    const value = e.target.value.replace(/\D/g, "");
+
+                    setEditData({
+                      ...editData,
+                      teleponPenerima: value,
+                    });
+
+                    if (editErrors.teleponPenerima)
+                      setEditErrors({
+                        ...editErrors,
+                        teleponPenerima: "",
+                      });
                   }}
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${
+                    editErrors.teleponPenerima ? "border-red-500" : ""
+                  }`}
                 />
                 {editErrors.teleponPenerima && <p className="text-red-500 text-xs mt-1">{editErrors.teleponPenerima}</p>}
               </div>
@@ -1285,12 +1357,9 @@ export default function ShipmentsPage() {
 
                 <input
                   type="number"
-                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.harga ? 'border-red-500' : ''}`}
+                  readOnly
                   value={editData.harga || ""}
-                  onChange={(e) => {
-                    setEditData({ ...editData, harga: e.target.value });
-                    if (editErrors.harga) setEditErrors({ ...editErrors, harga: "" });
-                  }}
+                  className="w-full border rounded-lg px-3 py-2 mt-1 bg-gray-100 cursor-not-allowed"
                 />
                 {editErrors.harga && <p className="text-red-500 text-xs mt-1">{editErrors.harga}</p>}
               </div>
@@ -1323,27 +1392,53 @@ export default function ShipmentsPage() {
               {/* BARIS 5 */}
               <div>
                 <label className="text-sm">Asal</label>
-                <input
+                <select
                   value={editData.asal || ""}
                   onChange={(e) => {
                     setEditData({ ...editData, asal: e.target.value });
                     if (editErrors.asal) setEditErrors({ ...editErrors, asal: "" });
                   }}
-                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.asal ? 'border-red-500' : ''}`}
-                />
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${
+                    editErrors.asal ? "border-red-500" : ""
+                  }`}
+                >
+                  <option value="">Pilih Kota Asal</option>
+
+                  {cities.map((city) => (
+                    <option
+                      key={`edit-origin-${city.code}`}
+                      value={`${city.name} (${city.code})`}
+                    >
+                      {city.name} ({city.code})
+                    </option>
+                  ))}
+                </select>
                 {editErrors.asal && <p className="text-red-500 text-xs mt-1">{editErrors.asal}</p>}
               </div>
 
               <div>
                 <label className="text-sm">Tujuan</label>
-                <input
+                <select
                   value={editData.tujuan || ""}
                   onChange={(e) => {
                     setEditData({ ...editData, tujuan: e.target.value });
                     if (editErrors.tujuan) setEditErrors({ ...editErrors, tujuan: "" });
                   }}
-                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.tujuan ? 'border-red-500' : ''}`}
-                />
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${
+                    editErrors.tujuan ? "border-red-500" : ""
+                  }`}
+                >
+                  <option value="">Pilih Kota Tujuan</option>
+
+                  {cities.map((city) => (
+                    <option
+                      key={`edit-destination-${city.code}`}
+                      value={`${city.name} (${city.code})`}
+                    >
+                      {city.name} ({city.code})
+                    </option>
+                  ))}
+                </select>
                 {editErrors.tujuan && <p className="text-red-500 text-xs mt-1">{editErrors.tujuan}</p>}
               </div>
 
