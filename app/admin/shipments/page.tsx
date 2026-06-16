@@ -43,7 +43,7 @@ export default function ShipmentsPage() {
     jenisPengiriman: string
   ) => {
     const rates: Record<string, number> = {
-      "Biasa": 10000,
+      "General Cargo": 10000,
       "Small Cargo": 15000,
       "Medium Cargo": 20000,
       "Large Cargo": 25000,
@@ -51,9 +51,9 @@ export default function ShipmentsPage() {
     };
 
     const shippingMultiplier: Record<string, number> = {
-      "Biasa": 1,
-      "Cepat": 1.5,
-      "VVIP": 2,
+      "Standard": 1,
+      "Express": 1.5,
+      "Priority": 2,
     };
 
     const zone1 = [
