@@ -48,12 +48,21 @@ export default function OperatorPage() {
 
   const fetchData = async () => {
     try {
-      const shipmentRes = await fetch("/api/shipments");
+      const shipmentRes = await fetch("/api/shipments"); // eror 2, pnyebab
       const shipmentJson = await shipmentRes.json();
 
-      setShipments(shipmentJson);
+      console.log("SHIPMENT RESPONSE:", shipmentJson);
+      console.log("IS ARRAY:", Array.isArray(shipmentJson));
+
+      setShipments(
+        Array.isArray(shipmentJson)
+          ? shipmentJson
+          : []
+      );
+
     } catch (error) {
       console.error(error);
+      setShipments([]);
     }
   };
 

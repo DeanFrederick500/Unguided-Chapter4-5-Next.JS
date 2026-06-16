@@ -384,28 +384,28 @@ export default function ShipmentsPage() {
 
   const validateForm = () => {
     const errors: Record<string, string> = {};
-    if (!form.tanggal) errors.tanggal = "Tanggal Kirim tidak boleh kosong";
-    if (!form.pengirim) errors.pengirim = "Nama Pengirim tidak boleh kosong";
-    if (!form.penerima) errors.penerima = "Nama Penerima tidak boleh kosong";
-    if (!form.telepon) errors.telepon = "Nomor Telepon Pengirim tidak boleh kosong";
-    if (!form.teleponPenerima) errors.teleponPenerima = "Nomor Telepon Penerima tidak boleh kosong";
-    if (!form.asal) errors.asal = "Asal tidak boleh kosong";
-    if (!form.tujuan) errors.tujuan = "Tujuan tidak boleh kosong";
+    if (!form.tanggal) errors.tanggal = "Shipment Date is required";
+    if (!form.pengirim) errors.pengirim = "Sender Name is required";
+    if (!form.penerima) errors.penerima = "Receiver Name is required";
+    if (!form.telepon) errors.telepon = "Sender Phone Number is required";
+    if (!form.teleponPenerima) errors.teleponPenerima = "Receiver Phone Number is required";
+    if (!form.asal) errors.asal = "Origin is required";
+    if (!form.tujuan) errors.tujuan = "Destination is required";
     if (
       form.asal &&
       form.tujuan &&
       form.asal === form.tujuan
     ) {
-      errors.tujuan = "Kota tujuan tidak boleh sama dengan kota asal";
+      errors.tujuan = "Destination city cannot be the same as the origin city";
     }
-    if (!form.namaBarang) errors.namaBarang = "Nama Barang tidak boleh kosong";
-    if (!form.jenisBarang) errors.jenisBarang = "Jenis Barang tidak boleh kosong";
-    if (!form.berat) errors.berat = "Berat tidak boleh kosong";
-    if (!form.harga) errors.harga = "Harga Pengiriman tidak boleh kosong";
-    if (!form.kendaraan) errors.kendaraan = "Jenis Kendaraan tidak boleh kosong";
-    if (!form.jenisPengiriman) errors.jenisPengiriman = "Jenis Pengiriman tidak boleh kosong";
-    if (!form.flight) errors.flight = "No. Penerbangan tidak boleh kosong";
-    if (!form.deskripsi) errors.deskripsi = "Deskripsi Barang tidak boleh kosong";
+    if (!form.namaBarang) errors.namaBarang = "Item Name is required";
+    if (!form.jenisBarang) errors.jenisBarang = "Cargo Type is required";
+    if (!form.berat) errors.berat = "Weight is required";
+    if (!form.harga) errors.harga = "Shipping Cost is required";
+    if (!form.kendaraan) errors.kendaraan = "Vehicle Type is required";
+    if (!form.jenisPengiriman) errors.jenisPengiriman = "Shipping Type is required";
+    if (!form.flight) errors.flight = "Flight Number is required";
+    if (!form.deskripsi) errors.deskripsi = "Cargo Description is required";
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -413,26 +413,26 @@ export default function ShipmentsPage() {
 
   const validateEdit = () => {
     const errors: Record<string, string> = {};
-    if (!editData.item_name) errors.item_name = "Nama Barang tidak boleh kosong";
-    if (!editData.jenisBarang) errors.jenisBarang = "Jenis Barang tidak boleh kosong";
-    if (!editData.berat) errors.berat = "Berat tidak boleh kosong";
-    if (!editData.telepon) errors.telepon = "Nomor Telepon Pengirim tidak boleh kosong";
-    if (!editData.teleponPenerima) errors.teleponPenerima = "Nomor Telepon Penerima tidak boleh kosong";
-    if (!editData.kendaraan) errors.kendaraan = "Jenis Kendaraan tidak boleh kosong";
-    if (!editData.jenisPengiriman) errors.jenisPengiriman = "Jenis Pengiriman tidak boleh kosong";
-    if (!editData.harga) errors.harga = "Harga Pengiriman tidak boleh kosong";
-    if (!editData.flight) errors.flight = "No. Penerbangan tidak boleh kosong";
-    if (!editData.asal) errors.asal = "Asal tidak boleh kosong";
-    if (!editData.tujuan) errors.tujuan = "Tujuan tidak boleh kosong";
+    if (!editData.item_name) errors.item_name = "Item Name is required";
+    if (!editData.jenisBarang) errors.jenisBarang = "Cargo Type is required";
+    if (!editData.berat) errors.berat = "Weight is required";
+    if (!editData.telepon) errors.telepon = "Sender Phone Number is required";
+    if (!editData.teleponPenerima) errors.teleponPenerima = "Receiver Phone Number is required";
+    if (!editData.kendaraan) errors.kendaraan = "Vehicle Type is required";
+    if (!editData.jenisPengiriman) errors.jenisPengiriman = "Shipping Type is required";
+    if (!editData.harga) errors.harga = "Shipping Cost is required";
+    if (!editData.flight) errors.flight = "Flight Number is required";
+    if (!editData.asal) errors.asal = "Origin is required";
+    if (!editData.tujuan) errors.tujuan = "Destination is required";
     if (
       editData.asal &&
       editData.tujuan &&
       editData.asal === editData.tujuan
     ) {
-      errors.tujuan = "Kota tujuan tidak boleh sama dengan kota asal";
+      errors.tujuan = "Destination city cannot be the same as the origin city";
     }
-    if (!editData.status) errors.status = "Status Baru tidak boleh kosong";
-    if (!editData.deskripsi) errors.deskripsi = "Deskripsi Barang tidak boleh kosong";
+    if (!editData.status) errors.status = "Status is required";
+    if (!editData.deskripsi) errors.deskripsi = "Cargo Description is required";
 
     setEditErrors(errors);
     return Object.keys(errors).length === 0;
@@ -445,14 +445,14 @@ export default function ShipmentsPage() {
 
     const selectedFlight = flights.find((f) => f.flight_number === form.flight);
     if (!selectedFlight) {
-      setFlightError("Flight tidak ditemukan");
+      setFlightError("Flight not found");
       return;
     }
 
     setFlightError("");
 
     if (beratError || hargaError) {
-      alert("Harap perbaiki kesalahan: Berat dan Harga harus berupa angka!");
+      alert("Weight and Shipping Cost must be valid numbers.");
       return;
     }
 
@@ -510,7 +510,7 @@ export default function ShipmentsPage() {
       setOpen(false);
       setSuccessModal({
         open: true,
-        message: "Shipment berhasil ditambahkan.",
+        message: "Shipment added successfully.",
         awb: newAwb,
       });
 
@@ -548,7 +548,7 @@ export default function ShipmentsPage() {
 
       console.log(errorData);
 
-      alert(errorData.error || "Gagal menambahkan shipment");
+      alert(errorData.error || "Failed to add shipment");
 
     }
   };
@@ -560,7 +560,7 @@ export default function ShipmentsPage() {
 
     const selectedFlight = flights.find((f) => f.flight_number === editData.flight);
     if (!selectedFlight) {
-      alert("Flight tidak ditemukan. Harap pilih flight yang valid.");
+      alert("Flight not found. Please select a valid flight.");
       return;
     }
 
@@ -602,11 +602,11 @@ export default function ShipmentsPage() {
       setEditData(null);
       setSuccessModal({
         open: true,
-        message: "Shipment berhasil diperbarui.",
+        message: "Shipment updated.",
         awb: editData.awb,
       });
     } else {
-      alert("Gagal update shipment");
+      alert("Failed to update shipment.");
     }
   };
 
@@ -620,7 +620,7 @@ export default function ShipmentsPage() {
         <div>
           <h1 className="text-2xl font-bold">Data Shipment</h1>
           <p className="text-gray-500 text-sm">
-            Kelola semua data pengiriman kargo
+            Manage and monitor all cargo shipment data
           </p>
         </div>
 
@@ -631,7 +631,7 @@ export default function ShipmentsPage() {
           }}
           className="bg-blueprimary text-white px-4 py-2 rounded-lg flex items-center gap-2"
         >
-          <Plus size={16} /> Tambah Shipment
+          <Plus size={16} /> New Shipment
         </button>
       </div>
 
@@ -641,7 +641,7 @@ export default function ShipmentsPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
           <input
-            placeholder="Cari AWB..."
+            placeholder="Find AWB..."
             className="w-full border rounded-lg pl-10 pr-3 h-10"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -655,13 +655,13 @@ export default function ShipmentsPage() {
           >
             <Filter size={18} className="text-gray-500" />
             <span className="text-sm text-gray-600">
-              {statusFilter || "Semua Status"}
+              {statusFilter || "All Status"}
             </span>
           </button>
 
           {showFilter && (
             <div className="absolute right-0 mt-2 bg-white border rounded-lg shadow w-40 z-10">
-              <button onClick={() => { setStatusFilter(""); setShowFilter(false); }} className="block w-full text-left px-3 py-2 hover:bg-gray-100">Semua Status</button>
+              <button onClick={() => { setStatusFilter(""); setShowFilter(false); }} className="block w-full text-left px-3 py-2 hover:bg-gray-100">All Status</button>
               <button onClick={() => { setStatusFilter("Received"); setShowFilter(false); }} className="block w-full text-left px-3 py-2 hover:bg-gray-100">Received</button>
               <button onClick={() => { setStatusFilter("In Transit"); setShowFilter(false); }} className="block w-full text-left px-3 py-2 hover:bg-gray-100">In Transit</button>
               <button onClick={() => { setStatusFilter("Delivered"); setShowFilter(false); }} className="block w-full text-left px-3 py-2 hover:bg-gray-100">Delivered</button>
@@ -677,20 +677,20 @@ export default function ShipmentsPage() {
           <thead className="bg-gray-100 text-gray-500">
             <tr>
               <th className="p-3 text-left">AWB</th>
-              <th className="p-3 text-left">Tanggal</th>
-              <th className="p-3 text-left">Pengirim</th>
-              <th className="p-3 text-left">Penerima</th>
+              <th className="p-3 text-left">Date</th>
+              <th className="p-3 text-left">Sender</th>
+              <th className="p-3 text-left">Receiver</th>
               {/* <th className="p-3 text-left">Telepon Pengirim</th>
               <th className="p-3 text-left">Telepon Penerima</th> */}
-              <th className="p-3 text-left">Asal</th>
-              <th className="p-3 text-left">Tujuan</th>
+              <th className="p-3 text-left">Origin</th>
+              <th className="p-3 text-left">Destination</th>
               {/* <th className="p-3 text-left">Nama Barang</th> */}
               {/* <th className="p-3 text-left">Harga</th>
               <th className="p-3 text-left">Jenis Kendaraan</th>
               <th className="p-3 text-left">Jenis Pengiriman</th> */}
-              <th className="p-3 text-left">No. Penerbangan</th>
+              <th className="p-3 text-left">Flight Number</th>
               <th className="p-3 text-left text-center">Status</th>
-              <th className="p-3 text-left text-center">Aksi</th>
+              <th className="p-3 text-left text-center">Action</th>
             </tr>
           </thead>
 
@@ -826,14 +826,14 @@ export default function ShipmentsPage() {
             </button>
 
             <h2 className="text-xl font-semibold mb-6">
-              Tambah Shipment Baru
+              Add New Shipment
             </h2>
 
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
               {/* TANGGAL KIRIM */}
               <div>
-                <label className="text-sm">Tanggal Kirim</label>
+                <label className="text-sm">Shipment Date</label>
 
                 <input
                   type="date"
@@ -849,7 +849,7 @@ export default function ShipmentsPage() {
 
               {/* JENIS PENGIRIMAN */}
               <div>
-                <label className="text-sm">Jenis Pengiriman</label>
+                <label className="text-sm">Shipping Type</label>
 
                 <select
                   className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.jenisPengiriman ? 'border-red-500' : ''}`}
@@ -872,7 +872,7 @@ export default function ShipmentsPage() {
 
               {/* PENGIRIM */}
               <div>
-                <label className="text-sm">Nama Pengirim</label>
+                <label className="text-sm">Sender Name</label>
 
                 <input
                   className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.pengirim ? 'border-red-500' : ''}`}
@@ -887,7 +887,7 @@ export default function ShipmentsPage() {
 
               {/* PENERIMA */}
               <div>
-                <label className="text-sm">Nama Penerima</label>
+                <label className="text-sm">Receiver Name</label>
 
                 <input
                   className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.penerima ? 'border-red-500' : ''}`}
@@ -902,7 +902,7 @@ export default function ShipmentsPage() {
 
               {/* TELEPON */}
               <div>
-                <label className="text-sm">No Telepon Pengirim</label>
+                <label className="text-sm">Sender Phone Number</label>
 
                 <input
                   type="tel"
@@ -940,7 +940,7 @@ export default function ShipmentsPage() {
 
               {/* TELEPON PENERIMA */}
               <div>
-                <label className="text-sm">No Telepon Penerima</label>
+                <label className="text-sm">Receiver Phone Number</label>
 
                 <input
                   type="tel"
@@ -978,7 +978,7 @@ export default function ShipmentsPage() {
 
               {/* NAMA BARANG */}
               <div>
-                <label className="text-sm">Nama Barang</label>
+                <label className="text-sm">Item Name</label>
 
                 <input
                   className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.namaBarang ? 'border-red-500' : ''}`}
@@ -993,7 +993,7 @@ export default function ShipmentsPage() {
 
               {/* JENIS BARANG */}
               <div>
-                <label className="text-sm">Jenis Barang</label>
+                <label className="text-sm">Cargo Type</label>
                 <select
                   className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.jenisBarang ? 'border-red-500' : ''}`}
                   value={form.jenisBarang}
@@ -1002,7 +1002,7 @@ export default function ShipmentsPage() {
                     if (formErrors.jenisBarang) setFormErrors({ ...formErrors, jenisBarang: "" });
                   }}
                 >
-                  <option value="">Pilih Jenis Barang</option>
+                  <option value="">Select Cargo Type</option>
                   {itemTypes.map((type) => (
                     <option key={`add-item-${type}`} value={type}>{type}</option>
                   ))}
@@ -1021,7 +1021,7 @@ export default function ShipmentsPage() {
 
               {/* ASAL */}
               <div>
-                <label className="text-sm">Asal</label>
+                <label className="text-sm">Origin</label>
                 <select
                   className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.asal ? 'border-red-500' : ''}`}
                   value={form.asal}
@@ -1030,7 +1030,7 @@ export default function ShipmentsPage() {
                     if (formErrors.asal) setFormErrors({ ...formErrors, asal: "" });
                   }}
                 >
-                  <option value="">Pilih Kota Asal</option>
+                  <option value="">Select Origin City</option>
                   {cities.map((city) => (
                     <option key={city.code} value={`${city.name} (${city.code})`}>
                       {city.name} ({city.code})
@@ -1042,7 +1042,7 @@ export default function ShipmentsPage() {
 
               {/* TUJUAN */}
               <div>
-                <label className="text-sm">Tujuan</label>
+                <label className="text-sm">Destination</label>
                 <select
                   className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.tujuan ? 'border-red-500' : ''}`}
                   value={form.tujuan}
@@ -1051,7 +1051,7 @@ export default function ShipmentsPage() {
                     if (formErrors.tujuan) setFormErrors({ ...formErrors, tujuan: "" });
                   }}
                 >
-                  <option value="">Pilih Kota Tujuan</option>
+                  <option value="">Select Destination City</option>
                   {cities.map((city) => (
                     <option key={city.code} value={`${city.name} (${city.code})`}>
                       {city.name} ({city.code})
@@ -1063,7 +1063,7 @@ export default function ShipmentsPage() {
 
               {/* BERAT */}
               <div>
-                <label className="text-sm">Berat (kg)</label>
+                <label className="text-sm">Weight (kg)</label>
                 <input
                   type="number"
                   className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.berat || beratError ? 'border-red-500' : ''}`}
@@ -1084,7 +1084,7 @@ export default function ShipmentsPage() {
 
               {/* HARGA */}
               <div>
-                <label className="text-sm">Harga Pengiriman</label>
+                <label className="text-sm">Shipping Cost</label>
                 <input
                   type="number"
                   readOnly
@@ -1106,7 +1106,7 @@ export default function ShipmentsPage() {
 
               {/* JENIS KENDARAAN */}
               <div>
-                <label className="text-sm">Jenis Kendaraan</label>
+                <label className="text-sm">Vehicle Type</label>
 
                 <select
                   className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.kendaraan ? 'border-red-500' : ''}`}
@@ -1116,7 +1116,7 @@ export default function ShipmentsPage() {
                     if (formErrors.kendaraan) setFormErrors({ ...formErrors, kendaraan: "" });
                   }}
                 >
-                  <option value="">Pilih Kendaraan</option>
+                  <option value="">Select Vehicle</option>
                   {vehicles.map((vehicle) => (
                     <option key={`add-veh-${vehicle}`} value={vehicle}>
                       {vehicle}
@@ -1128,7 +1128,7 @@ export default function ShipmentsPage() {
 
               {/* FLIGHT */}
               <div>
-                <label className="text-sm">No. Penerbangan</label>
+                <label className="text-sm">Flight Number</label>
                 <select
                   value={form.flight}
                   onChange={(e) => {
@@ -1138,7 +1138,7 @@ export default function ShipmentsPage() {
                   }}
                   className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.flight || flightError ? "border-red-500" : ""}`}
                 >
-                  <option value="">Pilih No. Penerbangan</option>
+                  <option value="">Select Flight Number</option>
                   {flights.map((flight) => (
                     <option key={`create-flight-${flight.flight_number}`} value={flight.flight_number}>
                       {flight.flight_number}
@@ -1156,7 +1156,7 @@ export default function ShipmentsPage() {
 
               {/* DESKRIPSI */}
               <div>
-                <label className="text-sm">Deskripsi Barang</label>
+                <label className="text-sm">Cargo Description</label>
 
                 <textarea
                   className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.deskripsi ? 'border-red-500' : ''}`}
@@ -1175,10 +1175,10 @@ export default function ShipmentsPage() {
                   setOpen(false);
                   setFormErrors({});
                 }} className="border py-2 rounded-lg">
-                  Batal
+                  Cancel
                 </button>
                 <button type="submit" className="bg-blue-600 text-white py-2 rounded-lg">
-                  Simpan
+                  Save
                 </button>
               </div>
 
@@ -1207,7 +1207,7 @@ export default function ShipmentsPage() {
 
               {/* BARIS 1 */}
               <div>
-                <label className="text-sm">Nama Barang</label>
+                <label className="text-sm">Item Name</label>
 
                 <input
                   className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.item_name ? 'border-red-500' : ''}`}
@@ -1221,7 +1221,7 @@ export default function ShipmentsPage() {
               </div>
 
               <div>
-                <label className="text-sm">Jenis Barang</label>
+                <label className="text-sm">Cargo Type</label>
 
                 <select
                   value={editData.jenisBarang || ""}
@@ -1231,7 +1231,7 @@ export default function ShipmentsPage() {
                   }}
                   className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.jenisBarang ? 'border-red-500' : ''}`}
                 >
-                  <option value="">Pilih Jenis Barang</option>
+                  <option value="">Select Cargo Type</option>
                   {itemTypes.map((type) => (
                     <option key={`edit-item-${type}`} value={type}>{type}</option>
                   ))}
@@ -1249,7 +1249,7 @@ export default function ShipmentsPage() {
               </div>
 
               <div>
-                <label className="text-sm">Berat (kg)</label>
+                <label className="text-sm">Weight (kg)</label>
 
                 <input
                   type="number"
@@ -1265,7 +1265,7 @@ export default function ShipmentsPage() {
 
               {/* BARIS 2 */}
               <div>
-                <label className="text-sm">No Telepon Pengirim</label>
+                <label className="text-sm">Sender Phone Number</label>
 
                 <input
                   type="tel"
@@ -1293,7 +1293,7 @@ export default function ShipmentsPage() {
               </div>
 
               <div>
-                <label className="text-sm">No Telepon Penerima</label>
+                <label className="text-sm">Receiver Phone Number</label>
 
                 <input
                   type="tel"
@@ -1322,7 +1322,7 @@ export default function ShipmentsPage() {
 
               {/* BARIS 3 */}
               <div>
-                <label className="text-sm">Jenis Kendaraan</label>
+                <label className="text-sm">Vehicle Type</label>
                 <select
                   value={editData.kendaraan || ""}
                   onChange={(e) => {
@@ -1331,7 +1331,7 @@ export default function ShipmentsPage() {
                   }}
                   className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.kendaraan ? 'border-red-500' : ''}`}
                 >
-                  <option value="">Pilih Kendaraan</option>
+                  <option value="">Vehicle Type</option>
                   {vehicles.map((vehicle) => (
                     <option key={`edit-veh-${vehicle}`} value={vehicle}>
                       {vehicle}
@@ -1342,7 +1342,7 @@ export default function ShipmentsPage() {
               </div>
 
               <div>
-                <label className="text-sm">Jenis Pengiriman</label>
+                <label className="text-sm">Shipping Type</label>
 
                 <select
                   value={editData.jenisPengiriman || ""}
@@ -1362,7 +1362,7 @@ export default function ShipmentsPage() {
 
               {/* BARIS 4 */}
               <div>
-                <label className="text-sm">Harga Pengiriman</label>
+                <label className="text-sm">Shipping Cost</label>
 
                 <input
                   type="number"
@@ -1374,7 +1374,7 @@ export default function ShipmentsPage() {
               </div>
 
               <div>
-                <label className="text-sm">No. Penerbangan</label>
+                <label className="text-sm">Flight Number</label>
                 <select
                   value={editData.flight || ""}
                   onChange={(e) => {
@@ -1388,7 +1388,7 @@ export default function ShipmentsPage() {
                   }}
                   className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.flight ? 'border-red-500' : ''}`}
                 >
-                  <option value="">Pilih No. Penerbangan</option>
+                  <option value="">Select Flight Number</option>
                   {flights.map((flight) => (
                     <option key={`edit-flight-${flight.flight_number}`} value={flight.flight_number}>
                       {flight.flight_number}
@@ -1400,7 +1400,7 @@ export default function ShipmentsPage() {
 
               {/* BARIS 5 */}
               <div>
-                <label className="text-sm">Asal</label>
+                <label className="text-sm">Origin</label>
                 <select
                   value={editData.asal || ""}
                   onChange={(e) => {
@@ -1411,7 +1411,7 @@ export default function ShipmentsPage() {
                     editErrors.asal ? "border-red-500" : ""
                   }`}
                 >
-                  <option value="">Pilih Kota Asal</option>
+                  <option value="">Select Origin City</option>
 
                   {cities.map((city) => (
                     <option
@@ -1426,7 +1426,7 @@ export default function ShipmentsPage() {
               </div>
 
               <div>
-                <label className="text-sm">Tujuan</label>
+                <label className="text-sm">Destination</label>
                 <select
                   value={editData.tujuan || ""}
                   onChange={(e) => {
@@ -1437,7 +1437,7 @@ export default function ShipmentsPage() {
                     editErrors.tujuan ? "border-red-500" : ""
                   }`}
                 >
-                  <option value="">Pilih Kota Tujuan</option>
+                  <option value="">Select Destination City</option>
 
                   {cities.map((city) => (
                     <option
@@ -1453,7 +1453,7 @@ export default function ShipmentsPage() {
 
               {/* BARIS 6 */}
               <div>
-                <label className="text-sm">Status Baru</label>
+                <label className="text-sm">Status</label>
                 <select
                   value={editData.status || ""}
                   onChange={(e) => {
@@ -1462,7 +1462,7 @@ export default function ShipmentsPage() {
                   }}
                   className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.status ? 'border-red-500' : ''}`}
                 >
-                  <option value="" disabled>Pilih Status</option>
+                  <option value="" disabled>Select Status</option>
                   <option value="Received">Received</option>
                   <option value="Scheduled">Scheduled</option>
                   <option value="Departed">Departed</option>
@@ -1475,7 +1475,7 @@ export default function ShipmentsPage() {
               </div>
 
               <div>
-                <label className="text-sm">Deskripsi Barang</label>
+                <label className="text-sm">Cargo Description</label>
 
                 <textarea
                   value={editData.deskripsi || ""}
@@ -1497,14 +1497,14 @@ export default function ShipmentsPage() {
                   }}
                   className="border py-2 rounded-lg"
                 >
-                  Batal
+                  Cancel
                 </button>
 
                 <button
                   type="submit"
                   className="bg-blue-600 text-white py-2 rounded-lg"
                 >
-                  Simpan
+                  Save
                 </button>
               </div>
 
@@ -1519,7 +1519,7 @@ export default function ShipmentsPage() {
           <div className="bg-white w-[500px] rounded-xl p-6">
 
             <h2 className="text-2xl font-semibold mb-6">
-              Apakah anda yakin ingin menghapus data shipments ini?
+              Are you sure you want to delete this shipment?
             </h2>
 
             <p className="text-gray-600 text-1xl mb-8">
@@ -1531,7 +1531,7 @@ export default function ShipmentsPage() {
                 onClick={() => setDeleteData(null)}
                 className="border py-3 rounded-xl"
               >
-                Batal
+                Cancel
               </button>
 
               <button
@@ -1564,7 +1564,7 @@ export default function ShipmentsPage() {
                 }}
                 className="bg-blue-700 text-white py-3 rounded-xl"
               >
-                Hapus
+                Delete
               </button>
             </div>
 
@@ -1580,7 +1580,7 @@ export default function ShipmentsPage() {
               <Check size={32} className="text-green-600" strokeWidth={3} />
             </div>
             <h2 className="text-xl font-bold mb-4">{successModal.message}</h2>
-            <p className="text-gray-600 mb-1">Nomor AWB:</p>
+            <p className="text-gray-600 mb-1">AWB Number:</p>
             <p className="text-2xl font-bold text-blue-700 mb-8">{successModal.awb}</p>
             <button
               onClick={() => setSuccessModal({ open: false, message: "", awb: "" })}

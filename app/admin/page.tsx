@@ -255,7 +255,7 @@ export default function AdminPage() {
 
         <div className="col-span-2 bg-white p-6 rounded-xl shadow">
           <h2 className="font-semibold mb-4">
-            Statistik Pengiriman Cargo
+            Cargo Shipment Statistics
           </h2>
 
           <div className="h-64">
