@@ -8,6 +8,9 @@ import Loading from "./loading";
 
 export const metadata = {
   title: "ExpressAir Cargo System",
+  icons: {
+    icon: "/logo siweb.png"
+  },
   description: "Perusahaan ekspedisi yang menyediakan layanan pengiriman barang dengan berbagai pilihan armada dan layanan tambahan untuk memenuhi kebutuhan pelanggan",
 };
 

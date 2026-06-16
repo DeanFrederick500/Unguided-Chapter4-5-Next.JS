@@ -629,7 +629,7 @@ export default function ShipmentsPage() {
             setOpen(true);
             setFormErrors({});
           }}
-          className="bg-blueprimary text-white px-4 py-2 rounded-lg flex items-center gap-2"
+          className="bg-blueprimary text-white px-4 py-2 rounded-lg flex items-center gap-2 font-semibold"
         >
           <Plus size={16} /> New Shipment
         </button>
@@ -657,6 +657,9 @@ export default function ShipmentsPage() {
             <span className="text-sm text-gray-600">
               {statusFilter || "All Status"}
             </span>
+            <span className="text-xs text-gray-400 pl-5">▼</span>
+
+
           </button>
 
           {showFilter && (

@@ -308,14 +308,15 @@ export async function GET() {
         destination,
         etd,
         eta,
-        status
+        status,
+        vehicle_id
       )
       VALUES
-      ('GA-101', 'Soekarno Hatta International Airport', 'Singapore Changi Airport', '08:00', '10:00', 'Scheduled'),
-      ('GA-202', 'Juanda International Airport', 'Suvarnabhumi Airport', '10:00', '13:00', 'Departed'),
-      ('GA-303', 'Ngurah Rai International Airport', 'Narita International Airport', '13:00', '21:00', 'Delayed'),
-      ('GA-404', 'Soekarno Hatta International Airport', 'Hong Kong International Airport', '15:00', '20:00', 'In Transit'),
-      ('GA-505', 'Kualanamu International Airport', 'Kuala Lumpur International Airport', '18:00', '20:00', 'Landed')
+      ('GA-101', 'Soekarno Hatta International Airport', 'Singapore Changi Airport', '08:00', '10:00', 'Scheduled', 1),
+      ('GA-202', 'Juanda International Airport', 'Suvarnabhumi Airport', '10:00', '13:00', 'Departed', 2),
+      ('GA-303', 'Ngurah Rai International Airport', 'Narita International Airport', '13:00', '21:00', 'Delayed', 3),
+      ('GA-404', 'Soekarno Hatta International Airport', 'Hong Kong International Airport', '15:00', '20:00', 'In Transit', 4),
+      ('GA-505', 'Kualanamu International Airport', 'Kuala Lumpur International Airport', '18:00', '20:00', 'Landed', 5)
       ON CONFLICT (flight_number) DO NOTHING;
     `;
 

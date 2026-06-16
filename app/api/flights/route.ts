@@ -4,32 +4,104 @@ const sql = postgres(process.env.POSTGRES_URL!, {
   ssl: "require",
 });
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (id) {
+      const flights = await sql`
+        SELECT f.id, f.flight_number, f.origin, f.destination, f.etd, f.eta, f.status, f.vehicle_id,
+               v.vehicle_code, v.vehicle_name, v.load_capacity
+        FROM flights f
+        LEFT JOIN vehicles v ON f.vehicle_id = v.id
+        WHERE f.id = ${id}
+      `;
+
+      if (flights.length === 0) {
+        return Response.json({ error: "Flight not found" }, { status: 404 });
+      }
+
+      return Response.json(flights[0]);
+    }
+
     const flights = await sql`
-      SELECT id, flight_number, origin, destination, etd, eta, status
-      FROM flights
-      ORDER BY flight_number
+      SELECT f.id, f.flight_number, f.origin, f.destination, f.etd, f.eta, f.status, f.vehicle_id,
+             v.vehicle_code, v.vehicle_name, v.load_capacity
+      FROM flights f
+      LEFT JOIN vehicles v ON f.vehicle_id = v.id
+      ORDER BY f.flight_number ASC
     `;
 
-    return Response.json(flights.map((flight: any) => ({
-      id: flight.id,
-      flight_number: flight.flight_number,
-      origin: flight.origin,
-      destination: flight.destination,
-      etd: flight.etd,
-      eta: flight.eta,
-      status: flight.status,
-    })));
+    return Response.json(flights);
   } catch (error) {
-    return Response.json(
-      {
-        error: String(error),
-      },
-      {
-        status: 500,
+    return Response.json({ error: String(error) }, { status: 500 });
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    let { flight_number, vehicle_id, origin, destination, etd, eta, status } = body;
+
+    if (!vehicle_id || !origin || !destination || !status) {
+      return Response.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    // Auto-generate flight number if not provided
+    if (!flight_number || flight_number.trim() === "") {
+      let unique = false;
+      while (!unique) {
+        const randNum = Math.floor(100 + Math.random() * 900);
+        flight_number = `EA-${randNum}`;
+        const existing = await sql`SELECT id FROM flights WHERE flight_number = ${flight_number}`;
+        if (existing.length === 0) {
+          unique = true;
+        }
       }
-    );
+    }
+
+    const result = await sql`
+      INSERT INTO flights (flight_number, vehicle_id, origin, destination, etd, eta, status)
+      VALUES (${flight_number}, ${vehicle_id}, ${origin}, ${destination}, ${etd || null}, ${eta || null}, ${status})
+      RETURNING id, flight_number, origin, destination, etd, eta, status, vehicle_id
+    `;
+
+    return Response.json(result[0]);
+  } catch (error) {
+    return Response.json({ error: String(error) }, { status: 500 });
+  }
+}
+
+export async function PUT(req: Request) {
+  try {
+    const body = await req.json();
+    const { id, flight_number, vehicle_id, origin, destination, etd, eta, status } = body;
+
+    if (!id || !flight_number || !vehicle_id || !origin || !destination || !status) {
+      return Response.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    const result = await sql`
+      UPDATE flights
+      SET flight_number = ${flight_number},
+          vehicle_id = ${vehicle_id},
+          origin = ${origin},
+          destination = ${destination},
+          etd = ${etd || null},
+          eta = ${eta || null},
+          status = ${status}
+      WHERE id = ${id}
+      RETURNING id, flight_number, origin, destination, etd, eta, status, vehicle_id
+    `;
+
+    if (result.length === 0) {
+      return Response.json({ error: "Flight not found" }, { status: 404 });
+    }
+
+    return Response.json(result[0]);
+  } catch (error) {
+    return Response.json({ error: String(error) }, { status: 500 });
   }
 }
 
@@ -39,43 +111,61 @@ export async function PATCH(req: Request) {
     const { id, status } = body;
 
     if (!id || !status) {
-      return Response.json(
-        {
-          error: "Missing id or status",
-        },
-        {
-          status: 400,
-        }
-      );
+      return Response.json({ error: "Missing id or status" }, { status: 400 });
     }
 
-    const updatedFlights = await sql`
+    const result = await sql`
       UPDATE flights
       SET status = ${status}
       WHERE id = ${id}
-      RETURNING id, flight_number, origin, destination, etd, eta, status
+      RETURNING id, flight_number, origin, destination, etd, eta, status, vehicle_id
     `;
 
-    if (!updatedFlights || updatedFlights.length === 0) {
-      return Response.json(
-        {
-          error: "Flight not found",
-        },
-        {
-          status: 404,
-        }
-      );
+    if (result.length === 0) {
+      return Response.json({ error: "Flight not found" }, { status: 404 });
     }
 
-    return Response.json(updatedFlights[0]);
+    return Response.json(result[0]);
   } catch (error) {
-    return Response.json(
-      {
-        error: String(error),
-      },
-      {
-        status: 500,
-      }
-    );
+    return Response.json({ error: String(error) }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    let id = searchParams.get("id");
+
+    if (!id) {
+      try {
+        const body = await req.json();
+        id = body.id;
+      } catch (e) {}
+    }
+
+    if (!id) {
+      return Response.json({ error: "Missing id parameter" }, { status: 400 });
+    }
+
+    // Safely update shipments referencing this flight
+    await sql`
+      UPDATE shipments
+      SET flight_id = NULL
+      WHERE flight_id = ${id}
+    `;
+
+    const result = await sql`
+      DELETE FROM flights
+      WHERE id = ${id}
+      RETURNING id
+    `;
+
+    if (result.length === 0) {
+      return Response.json({ error: "Flight not found" }, { status: 404 });
+    }
+
+    return Response.json({ message: "Flight deleted successfully", id: result[0].id });
+  } catch (error) {
+    return Response.json({ error: String(error) }, { status: 500 });
   }
 }

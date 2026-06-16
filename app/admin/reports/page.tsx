@@ -97,7 +97,7 @@ export default function ReportPage() {
 
         console.log("SHIPMENTS:", data);
 
-        setShipments(data);
+        setShipments(Array.isArray(data) ? data : []);
 
       } catch (error) {
 
@@ -118,24 +118,24 @@ export default function ReportPage() {
   // FILTER SHIPMENTS
   // =====================================================
 
-  const filteredShipments = shipments.filter(
-    (shipment: any) => {
+  const filteredShipments = Array.isArray(shipments)
+    ? shipments.filter((shipment: any) => {
 
-      if (!shipment.shipment_date)
-        return false;
+        if (!shipment.shipment_date)
+          return false;
 
-      const shipmentDate =
-        getOnlyDate(
-          shipment.shipment_date
+        const shipmentDate =
+          getOnlyDate(
+            shipment.shipment_date
+          );
+
+        return (
+          shipmentDate >= startDate &&
+          shipmentDate <= endDate
         );
 
-      return (
-        shipmentDate >= startDate &&
-        shipmentDate <= endDate
-      );
-
-    }
-  );
+      })
+    : [];
 
   // =====================================================
   // GENERATE CHART DATA

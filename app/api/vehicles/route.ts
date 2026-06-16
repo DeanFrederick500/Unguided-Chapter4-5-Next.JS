@@ -7,7 +7,7 @@ const sql = postgres(process.env.POSTGRES_URL!, {
 export async function GET() {
   try {
     const vehicles = await sql`
-      SELECT vehicle_name
+      SELECT id, vehicle_name, vehicle_code, load_capacity, vehicle_status
       FROM vehicles
       ORDER BY vehicle_name ASC
     `;

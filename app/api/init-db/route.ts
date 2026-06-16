@@ -42,8 +42,14 @@ export async function GET() {
         etd TIME,
         eta TIME,
 
-        status VARCHAR(30)
+        status VARCHAR(30),
+
+        vehicle_id INTEGER REFERENCES vehicles(id)
       );
+    `;
+
+    await sql`
+      ALTER TABLE flights ADD COLUMN IF NOT EXISTS vehicle_id INTEGER REFERENCES vehicles(id);
     `;
 
     // =====================================================
