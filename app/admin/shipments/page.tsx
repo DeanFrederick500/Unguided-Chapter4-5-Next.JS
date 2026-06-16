@@ -1076,7 +1076,7 @@ export default function ShipmentsPage() {
                     setForm({ ...form, berat: val });
                     if (formErrors.berat) setFormErrors({ ...formErrors, berat: "" });
                     if (val === "" || isNaN(Number(val))) {
-                      setBeratError("Anda harus memasukkan angka");
+                      setBeratError("Please enter a valid number");
                     } else {
                       setBeratError("");
                     }

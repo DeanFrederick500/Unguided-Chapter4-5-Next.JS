@@ -102,7 +102,10 @@ export default function FlightsPageContent({ role }: { role: "admin" | "operator
   const loadFlights = async () => {
     try {
       const res = await fetch("/api/flights");
-      if (!res.ok) throw new Error("Failed to fetch flights");
+      console.log("FLIGHT STATUS:", res.status);
+
+      if (!res.ok)
+        throw new Error(`Failed to fetch flights (${res.status})`);
       const data = await res.json();
       setFlights(Array.isArray(data) ? data : []);
     } catch (error) {

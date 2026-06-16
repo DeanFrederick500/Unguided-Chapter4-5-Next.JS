@@ -61,7 +61,7 @@ export default function DetailShipment() {
           <ArrowLeft size={18} />
           Back to shipment list
         </button>
-        <div className="p-6">Loading shipement details...</div>
+        <div className="p-6">Loading shipment details...</div>
       </div>
     );
   }
