@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   CheckCircle,
@@ -15,6 +15,9 @@ import {
   Filter,
   X,
   Calendar,
+  // Play,
+  // Square,
+  // Zap,
 } from "lucide-react";
 
 interface Vehicle {
@@ -37,6 +40,8 @@ interface Flight {
   vehicle_code: string;
   vehicle_name: string;
   load_capacity: number;
+  simulation_started_at?: string | null;
+  simulation_interval?: number;
 }
 
 export default function FlightsPageContent({ role }: { role: "admin" | "operator" }) {
@@ -86,6 +91,12 @@ export default function FlightsPageContent({ role }: { role: "admin" | "operator
   const [editFlight, setEditFlight] = useState<Flight | null>(null);
   const [deleteFlight, setDeleteFlight] = useState<Flight | null>(null);
 
+  // Simulation State
+  const [simFlight, setSimFlight] = useState<Flight | null>(null);
+  const [simInterval, setSimInterval] = useState("60");
+  const [simLoading, setSimLoading] = useState<number | null>(null);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   // Form State
   const [form, setForm] = useState({
     flight_number: "",
@@ -132,6 +143,29 @@ export default function FlightsPageContent({ role }: { role: "admin" | "operator
     };
     init();
   }, []);
+
+  // Polling: if any flight is simulating, poll every 5s
+  useEffect(() => {
+    const hasSimulating = flights.some((f) => f.simulation_started_at);
+    if (hasSimulating) {
+      if (!pollRef.current) {
+        pollRef.current = setInterval(() => {
+          loadFlights();
+        }, 5000);
+      }
+    } else {
+      if (pollRef.current) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
+    }
+    return () => {
+      if (pollRef.current) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
+    };
+  }, [flights]);
 
   // Reset pagination on search/filter changes
   useEffect(() => {
@@ -212,6 +246,50 @@ export default function FlightsPageContent({ role }: { role: "admin" | "operator
     message: "",
     flightNumber: "",
   });
+
+  // Start simulation
+  const handleStartSimulation = async (flight: Flight) => {
+    setSimLoading(flight.id);
+    try {
+      const res = await fetch("/api/flights/simulation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          flight_id: flight.id,
+          action: "start",
+          interval_seconds: Number(simInterval) || 60,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to start simulation");
+      await loadFlights();
+      setSimFlight(null);
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setSimLoading(null);
+    }
+  };
+
+  // Stop simulation
+  const handleStopSimulation = async (flight: Flight) => {
+    setSimLoading(flight.id);
+    try {
+      const res = await fetch("/api/flights/simulation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          flight_id: flight.id,
+          action: "stop",
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to stop simulation");
+      await loadFlights();
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setSimLoading(null);
+    }
+  };
 
   // Submit Create
   const handleCreateSubmit = async (e: React.FormEvent) => {
@@ -565,7 +643,7 @@ export default function FlightsPageContent({ role }: { role: "admin" | "operator
                     </td>
                     <td className="p-4 items-center">{getStatusBadge(f.status)}</td>
                     <td className="p-4">
-                      <div className="flex items-center justify-center gap-3">
+                      <div className="flex items-center justify-center gap-2 ">
                         <button
                           onClick={() => router.push(`/${role}/flights/${f.id}`)}
                           className="text-blue-500 hover:text-blue-700 p-1 hover:bg-blue-50 rounded transition"
@@ -587,7 +665,35 @@ export default function FlightsPageContent({ role }: { role: "admin" | "operator
                         >
                           <Trash2 size={16} />
                         </button>
+                        {/* {f.simulation_started_at ? (
+                          <button
+                            onClick={() => handleStopSimulation(f)}
+                            disabled={simLoading === f.id}
+                            className="flex items-center gap-1 text-xs bg-red-100 text-red-600 hover:bg-red-200 px-2 py-1 rounded-lg transition font-semibold"
+                            title="Stop Simulation"
+                          >
+                            <Square size={12} />
+                            {simLoading === f.id ? "..." : "Stop"}
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => { setSimFlight(f); setSimInterval("60"); }}
+                            disabled={simLoading === f.id}
+                            className="flex items-center gap-1 text-xs bg-purple-100 text-purple-700 hover:bg-purple-200 px-2 py-1 rounded-lg transition font-semibold"
+                            title="Start Simulation"
+                          >
+                            <Play size={12} />
+                            {simLoading === f.id ? "..." : "Sim"}
+                          </button>
+                        )} */}
                       </div>
+                      {/* {f.simulation_started_at && (
+                        <div className="flex items-center justify-center mt-1">
+                          <span className="flex items-center gap-1 text-[10px] bg-purple-50 text-purple-600 px-2 py-0.5 rounded-full font-semibold animate-pulse">
+                            <Zap size={9} /> Simulating
+                          </span>
+                        </div>
+                      )} */}
                     </td>
                   </tr>
                 ))}
@@ -827,7 +933,7 @@ export default function FlightsPageContent({ role }: { role: "admin" | "operator
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden border border-gray-100">
             <div className="flex justify-between items-center bg-gray-50 px-6 py-4 border-b border-gray-100">
-              <h2 className="font-semibold text-lg text-gray-800">Edit Penerbangan</h2>
+              <h2 className="font-semibold text-lg text-gray-800">Edit Flight</h2>
               <button onClick={() => setEditFlight(null)} className="text-gray-400 hover:text-gray-600 transition">
                 <X size={20} />
               </button>
@@ -955,13 +1061,13 @@ export default function FlightsPageContent({ role }: { role: "admin" | "operator
                   onClick={() => setEditFlight(null)}
                   className="border py-2 text-sm font-medium rounded-lg hover:bg-gray-50 transition"
                 >
-                  Batal
+                  Cancel
                 </button>
                 <button
                   type="submit"
                   className="bg-blueprimary text-white py-2 text-sm font-semibold rounded-lg hover:bg-blue-700 transition"
                 >
-                  Perbarui
+                  Update
                 </button>
               </div>
             </form>
@@ -1007,6 +1113,68 @@ export default function FlightsPageContent({ role }: { role: "admin" | "operator
               OK
             </button>
 
+          </div>
+        </div>
+      )}
+
+      {/* SIMULATION CONFIG MODAL */}
+      {simFlight && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-gray-100">
+            <div className="flex justify-between items-center bg-purple-50 px-6 py-4 border-b border-purple-100">
+              <div className="flex items-center gap-2">
+                {/* <Zap size={18} className="text-purple-600" /> */}
+                <h2 className="font-semibold text-lg text-purple-800">Start Simulation</h2>
+              </div>
+              <button onClick={() => setSimFlight(null)} className="text-gray-400 hover:text-gray-600 transition">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <p className="text-sm text-gray-600">
+                Simulate automatic status progression for flight{" "}
+                <span className="font-bold text-purple-700">{simFlight.flight_number}</span>.
+              </p>
+              <div className="bg-purple-50 rounded-lg p-3 text-xs text-purple-700 space-y-1">
+                <p className="font-semibold mb-1">Simulation Flow:</p>
+                <p>⏱ T+0s → <b>Scheduled</b></p>
+                <p>⏱ T+interval → <b>Departed</b></p>
+                <p>⏱ T+2×interval → <b>In Transit</b></p>
+                <p>⏱ T+3×interval → <b>Landed</b></p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Interval per Status (seconds)
+                </label>
+                <input
+                  type="number"
+                  min="10"
+                  max="3600"
+                  className="w-full border p-2 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-purple-400"
+                  value={simInterval}
+                  onChange={(e) => setSimInterval(e.target.value)}
+                />
+                <p className="text-xs text-gray-400 mt-1">Minimum 10 seconds. Default: 60 seconds.</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3 pt-2 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setSimFlight(null)}
+                  className="border py-2 text-sm font-medium rounded-lg hover:bg-gray-50 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleStartSimulation(simFlight)}
+                  disabled={simLoading === simFlight.id}
+                  className="bg-purple-600 text-white py-2 text-sm font-semibold rounded-lg hover:bg-purple-700 transition flex items-center justify-center gap-2"
+                >
+                  {/* <Play size={14} /> */}
+                  {simLoading === simFlight.id ? "Starting..." : "Start Simulation"}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -641,7 +641,7 @@ export default function ShipmentsPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
           <input
-            placeholder="Find AWB..."
+            placeholder="Find AWB, Flight Number, Sender, Receiver..."
             className="w-full border rounded-lg pl-10 pr-3 h-10"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -698,7 +698,7 @@ export default function ShipmentsPage() {
           <tbody>
             {paginatedData.map((s) => (
               <tr key={s.id} className="border-t">
-                <td className="p-3 text-blue-600">{s.awb}</td>
+                <td className="p-3 text-blueprimary font-semibold cursor-pointer hover:underline" onClick={() => router.push(`/admin/shipments/${s.awb}`)}>{s.awb}</td>
 
                 <td className="p-3">{s.tanggal}</td>
 

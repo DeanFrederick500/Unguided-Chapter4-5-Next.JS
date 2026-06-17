@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import {
   BarChart,
@@ -18,7 +19,13 @@ import {
   ArrowUpRight,
   AlertTriangle,
   Clock,
+  Map,
 } from "lucide-react";
+
+const DashboardMap = dynamic(
+  () => import("@/components/features/DashboardMap"),
+  { ssr: false }
+);
 
 export default function OperatorPage() {
   // =====================================================
@@ -28,6 +35,7 @@ export default function OperatorPage() {
   const [mounted, setMounted] = useState(false);
 
   const [shipments, setShipments] = useState<any[]>([]);
+  const [flights, setFlights] = useState<any[]>([]);
 
   useEffect(() => {
     document.title = "Dashboard Operator - ExpressAir Cargo System";
@@ -48,15 +56,23 @@ export default function OperatorPage() {
 
   const fetchData = async () => {
     try {
-      const shipmentRes = await fetch("/api/shipments"); // eror 2, pnyebab
-      const shipmentJson = await shipmentRes.json();
+      const [shipmentRes, flightRes] = await Promise.all([
+        fetch("/api/shipments"),
+        fetch("/api/flights"),
+      ]);
 
-      console.log("SHIPMENT RESPONSE:", shipmentJson);
-      console.log("IS ARRAY:", Array.isArray(shipmentJson));
+      const shipmentJson = await shipmentRes.json();
+      const flightJson = await flightRes.json();
 
       setShipments(
         Array.isArray(shipmentJson)
           ? shipmentJson
+          : []
+      );
+
+      setFlights(
+        Array.isArray(flightJson)
+          ? flightJson
           : []
       );
 
@@ -76,7 +92,7 @@ export default function OperatorPage() {
   // DATE
   // =====================================================
 
-  const today = new Date().toLocaleDateString("id-ID", {
+  const today = new Date().toLocaleDateString("en-ID", {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -135,19 +151,42 @@ export default function OperatorPage() {
     }
   };
 
+  <div className="bg-white rounded-xl shadow mb-6 p-6">
+    <h2 className="font-semibold mb-4 flex items-center gap-2">
+      <Map size={20} className="text-blue-600" />
+      Live Flight Map
+
+      <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-medium">
+        {flights.length} flights
+      </span>
+    </h2>
+
+    {flights.length > 0 ? (
+      <DashboardMap flights={flights} />
+    ) : (
+      <div className="h-64 flex items-center justify-center text-gray-400 text-sm">
+        No flights available
+      </div>
+    )}
+  </div>
+
+  
+
   // =====================================================
   // DYNAMIC CHART
   // =====================================================
 
-  const shippingTypesCount = dataDashboard.reduce((acc: any, curr: any) => {
-    const type = curr.shipping_type || "Unknown";
-    acc[type] = (acc[type] || 0) + 1;
+  const shipmentStatusCount = dataDashboard.reduce((acc: any, curr: any) => {
+    const status = curr.shipment_status || "Unknown";
+
+    acc[status] = (acc[status] || 0) + 1;
+
     return acc;
   }, {});
 
-  const chartData = Object.keys(shippingTypesCount).map((key) => ({
+  const chartData = Object.keys(shipmentStatusCount).map((key) => ({
     name: key,
-    value: shippingTypesCount[key],
+    value: shipmentStatusCount[key],
   }));
 
   // =====================================================
@@ -244,6 +283,24 @@ export default function OperatorPage() {
         </div>
       </div>
 
+      {/* LIVE FLIGHT MAP */}
+      <div className="bg-white rounded-xl shadow mb-6 p-6">
+        <h2 className="font-semibold mb-4 flex items-center gap-2">
+          <Map size={20} className="text-blue-600" />
+          Live Flight Map
+          <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-medium">
+            {flights.length} flights
+          </span>
+        </h2>
+        {flights.length > 0 ? (
+          <DashboardMap flights={flights} />
+        ) : (
+          <div className="h-64 flex items-center justify-center text-gray-400 text-sm">
+            No flights available
+          </div>
+        )}
+      </div>
+
       {/* ===================================================== */}
       {/* CHART + RECENT */}
       {/* ===================================================== */}
@@ -255,7 +312,7 @@ export default function OperatorPage() {
 
         <div className="col-span-2 bg-white p-6 rounded-xl shadow">
           <h2 className="font-semibold mb-4">
-            Cargo Shipment Statistic
+            Shipment Status Statistic
           </h2>
 
           <div className="h-64">

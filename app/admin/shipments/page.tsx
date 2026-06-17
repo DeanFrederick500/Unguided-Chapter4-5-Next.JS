@@ -364,6 +364,7 @@ export default function ShipmentsPage() {
       s.awb.toLowerCase().includes(searchText) ||
       s.penerima.toLowerCase().includes(searchText) ||
       s.pengirim.toLowerCase().includes(searchText) ||
+      (s.flight || "").toLowerCase().includes(searchText) ||
       (s.item_name || "").toLowerCase().includes(searchText);
     const matchStatus = statusFilter ? s.status === statusFilter : true;
     return matchSearch && matchStatus;
@@ -488,7 +489,7 @@ export default function ShipmentsPage() {
 
       shipping_price: Number(form.harga),
       admin_fee: 0,
-      total_price: Number(form.harga) + 5000,
+      total_price: Number(form.harga),
 
       payment_method: "Transfer Bank",
       payment_date: form.tanggal,
@@ -641,7 +642,7 @@ export default function ShipmentsPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
           <input
-            placeholder="Find AWB..."
+            placeholder="Find AWB, Flight Number, Sender, Receiver..."
             className="w-full border rounded-lg pl-10 pr-3 h-10"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -693,7 +694,7 @@ export default function ShipmentsPage() {
               <th className="p-3 text-left">Jenis Pengiriman</th> */}
               <th className="p-3 text-left">Flight Number</th>
               <th className="p-3 text-left text-center">Status</th>
-              <th className="p-3 text-left text-center">Action</th>
+              <th className="p-3 text-left text-center">Actions</th>
             </tr>
           </thead>
 
@@ -1554,14 +1555,14 @@ export default function ShipmentsPage() {
                     await loadShipments();
                     setSuccessModal({
                       open: true,
-                      message: "Shipment berhasil dihapus.",
+                      message: "Shipment deleted successfully.",
                       awb: deleteData.awb,
                     });
                     setDeleteData(null);
 
                   } else {
 
-                    alert("Gagal menghapus shipment");
+                    alert("Failed to Delete Shipment");
 
                   }
                 }}

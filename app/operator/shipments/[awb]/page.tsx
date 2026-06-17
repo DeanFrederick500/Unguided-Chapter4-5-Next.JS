@@ -2,7 +2,50 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Package, Check } from "lucide-react";
+import { ArrowLeft, Package, Check, Clock, CheckCircle, AlertTriangle } from "lucide-react";
+
+function getStatusColor(status: string) {
+  switch (status?.toLowerCase()) {
+    case "received":
+      return "bg-sky-100 text-sky-700";
+
+    case "scheduled":
+      return "bg-gray-100 text-gray-600";
+
+    case "departed":
+      return "bg-blue-100 text-blue-700";
+
+    case "in transit":
+      return "bg-yellow-100 text-yellow-700";
+
+    case "landed":
+      return "bg-green-100 text-green-700";
+
+    case "delivered":
+      return "bg-emerald-100 text-emerald-700";
+
+    case "delayed":
+      return "bg-red-100 text-red-600";
+
+    default:
+      return "bg-gray-100 text-gray-600";
+  }
+}
+
+function formatDateTime(dt: string) {
+  const d = new Date(dt);
+
+  return (
+    d.toLocaleString("en-US", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "Asia/Jakarta",
+    }) + " WIB"
+  );
+}
 
 export default function DetailShipment() {
 
@@ -26,11 +69,11 @@ export default function DetailShipment() {
         if (Array.isArray(result) && result.length > 0) {
           setData(result[0]);
         } else {
-          setError("Data tidak ditemukan");
+          setError("Data not found");
         }
       })
       .catch(() => {
-        setError("Gagal memuat detail shipment");
+        setError("Failed to load shipment");
       })
       .finally(() => {
         setLoading(false);
@@ -50,6 +93,26 @@ export default function DetailShipment() {
     "In Transit": 3,
     "Delivered": 4,
   };
+
+  const STATUS_ORDER = [
+    "Received",
+    "Scheduled",
+    "Departed",
+    "In Transit",
+    "Landed",
+    "Delivered",
+  ];
+
+  const trackingHistory: any[] = data?.tracking_history || [];
+
+  const achievedStatuses = new Set(
+    trackingHistory.map((t: any) => t.status)
+  );
+
+  const currentStatus = data?.shipment_status || "";
+
+  const currentStatusIdx =
+    STATUS_ORDER.indexOf(currentStatus);
 
   if (loading) {
     return (
@@ -203,6 +266,35 @@ export default function DetailShipment() {
           </div>
         </div>
 
+        <div className="bg-white rounded-xl shadow p-6">
+          <h2 className="text-lg font-semibold text-blue-700 mb-4">
+            Flight Information
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <p className="text-gray-400 text-sm">Flight Number</p>
+              <p className="font-semibold">{data.flight_number || "-"}</p>
+            </div>
+
+            <div>
+              <p className="text-gray-400 text-sm">Vehicle Code</p>
+              <p className="font-semibold">{data.vehicle_code || "-"}</p>
+            </div>
+
+            <div>
+              <p className="text-gray-400 text-sm">Flight Status</p>
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(
+                  data.flight_status
+                )}`}
+              >
+                {data.flight_status || "-"}
+              </span>
+            </div>
+          </div>
+        </div>
+
         {/* SENDER & RECEIVER */}
         <div className="bg-white rounded-xl shadow p-6">
           <h2 className="text-lg font-semibold text-blue-700 mb-4">
@@ -342,90 +434,77 @@ export default function DetailShipment() {
           </div>
         </div>
 
-      </div>
+        {/* TRACKING TIMELINE */}
+        <div className="bg-white rounded-xl shadow p-6">
+          <h2 className="text-lg font-semibold text-blue-700 mb-6 flex items-center gap-2">
+            <p /> Tracking Timeline
+          </h2>
 
-      {/* TRACKING */}
-      <div className="bg-white p-6 rounded-xl shadow">
-        <h2 className="font-semibold mb-4">Riwayat Tracking</h2>
+          {/* Status progress bar */}
+          <div className="flex items-center mb-8 overflow-x-auto pb-2">
+            {STATUS_ORDER.map((step, i) => {
+              const isAchieved = achievedStatuses.has(step) || STATUS_ORDER.indexOf(step) < currentStatusIdx;
+              const isActive = step === currentStatus;
+              const isDelayed = currentStatus === "Delayed";
 
-        {steps.map((step, i) => {
-          const done = i <= currentIndex;
+              let circleClass = "bg-gray-200 border-gray-300 text-gray-400";
+              if (isActive && isDelayed) circleClass = "bg-red-100 border-red-500 text-red-600";
+              else if (isActive) circleClass = "bg-blue-100 border-blue-500 text-blue-700";
+              else if (isAchieved) circleClass = "bg-emerald-100 border-emerald-500 text-emerald-700";
 
-          return (
-            <div key={i} className="flex gap-4 mb-6">
-
-              {/* BULAT + GARIS */}
-              <div className="flex flex-col items-center">
-                <div className="relative flex items-center justify-center">
-
-                  {/* LINGKARAN LUAR */}
-                  <div
-                    className={`absolute w-8 h-8 rounded-full ${
-                      done ? "bg-emerald-100" : "bg-gray-200"
-                    }`}
-                  ></div>
-
-                  {/* LINGKARAN DALAM */}
-                  <div
-                    className={`relative z-10 w-5 h-5 flex items-center justify-center rounded-full border-2 ${
-                      done
-                        ? "bg-emerald-100 border-emerald-500"
-                        : "bg-gray-200 border-gray-400"
-                    }`}
-                  >
-                    {done ? (
-                      <Check size={12} className="text-emerald-500" />
-                    ) : (
-                      <Check size={12} className="text-gray-400" />
-                    )}
+              return (
+                <div key={step} className="flex items-center flex-1 min-w-[80px]">
+                  <div className="flex flex-col items-center flex-1">
+                    <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${circleClass}`}>
+                      {isAchieved ? <CheckCircle size={14} /> : isActive && isDelayed ? <AlertTriangle size={14} /> : <span className="text-xs font-bold">{i + 1}</span>}
+                    </div>
+                    <p className={`text-[10px] font-semibold mt-1 text-center whitespace-nowrap ${isActive ? "text-blue-700" : isAchieved ? "text-emerald-700" : "text-gray-400"}`}>
+                      {step}
+                    </p>
                   </div>
-
-                </div>
-
-                {i !== steps.length - 1 && (
-                  <div
-                    className={`w-[2px] h-12 ${
-                      done ? "bg-emerald-500" : "bg-gray-300"
-                    }`}
-                  ></div>
-                )}
-              </div>
-
-              {/* TEXT */}
-              <div>
-                <p
-                  className={`font-medium ${
-                    done ? "text-black" : "text-gray-600"
-                  }`}
-                >
-                  {step}
-                </p>
-
-                <p className="text-sm text-gray-400">
-                  {done ? (
-                    <>
-                      {/* LOKASI */}
-                      {step === "Received" || step === "Sortation"
-                        ? `${data.origin_city} Hub`
-                        : `${data.destination_city} Airport`}
-                      <br />
-
-                      {/* TANGGAL */}
-                      <span className="text-blue-600">
-                        05 April 2026 pukul 08.30
-                      </span>
-                    </>
-                  ) : (
-                    "Menunggu"
+                  {i < STATUS_ORDER.length - 1 && (
+                    <div className={`h-[2px] flex-1 mx-1 ${isAchieved ? "bg-emerald-400" : "bg-gray-200"}`} />
                   )}
-                </p>
-              </div>
+                </div>
+              );
+            })}
+          </div>
 
+          {/* Tracking history entries */}
+          {trackingHistory.length === 0 ? (
+            <p className="text-gray-400 text-sm text-center py-4">No tracking history available.</p>
+          ) : (
+            <div className="space-y-0">
+              {trackingHistory.map((item: any, i: number) => {
+                const isLast = i === trackingHistory.length - 1;
+                return (
+                  <div key={item.id || i} className="flex gap-4">
+                    {/* Timeline indicator */}
+                    <div className="flex flex-col items-center">
+                      <div className={`w-3 h-3 rounded-full border-2 mt-1 flex-shrink-0 ${isLast ? "border-blue-500 bg-blue-500" : "border-emerald-500 bg-emerald-500"}`} />
+                      {!isLast && <div className="w-[2px] bg-emerald-200 flex-1 my-1" />}
+                    </div>
+                    {/* Content */}
+                    <div className={`pb-5 ${isLast ? "" : ""}`}>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${getStatusColor(item.status)}`}>
+                          {item.status}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500">{item.location}</p>
+                      <p className="text-xs text-blue-600 font-medium mt-0.5">{formatDateTime(item.tracked_at)}</p>
+                      {item.description && <p className="text-xs text-gray-500 mt-0.5">{item.description}</p>}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          );
-        })}
+          )}
+        </div>
 
       </div>
+
+      
 
     </div>
   );

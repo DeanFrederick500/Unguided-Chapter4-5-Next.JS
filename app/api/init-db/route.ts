@@ -52,6 +52,18 @@ export async function GET() {
       ALTER TABLE flights ADD COLUMN IF NOT EXISTS vehicle_id INTEGER REFERENCES vehicles(id);
     `;
 
+    await sql`
+      ALTER TABLE flights ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+    `;
+
+    await sql`
+      ALTER TABLE flights ADD COLUMN IF NOT EXISTS simulation_started_at TIMESTAMP NULL;
+    `;
+
+    await sql`
+      ALTER TABLE flights ADD COLUMN IF NOT EXISTS simulation_interval INTEGER DEFAULT 60;
+    `;
+
     // =====================================================
     // 📦 SHIPMENTS
     // =====================================================
