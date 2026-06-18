@@ -13,7 +13,10 @@ export default function TrackingForm() {
     e.preventDefault();
     setError("");
 
-    if (!resi.trim()) return;
+    if (!resi.trim()) {
+      setError("Please enter an AWB number.");
+      return;
+    }
 
     try {
       setLoading(true);
@@ -45,7 +48,10 @@ export default function TrackingForm() {
         type="text"
         placeholder="Enter Your Airway Bill Number"
         value={resi}
-        onChange={(e) => setResi(e.target.value)}
+        onChange={(e) => {
+          setResi(e.target.value);
+          if (error) setError("");
+        }}
         className="w-full mt-2 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-darkblue"
       />
 
