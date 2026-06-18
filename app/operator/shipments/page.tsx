@@ -7,7 +7,7 @@ import { Plus, X, Trash2, Search, Filter, Eye, Pencil, Check } from "lucide-reac
 export default function ShipmentsPage() {
   const router = useRouter();
 
-  const [flights, setFlights] = useState<{ flight_number: string; status: string }[]>([]);
+  const [flights, setFlights] = useState<{ flight_number: string; status: string; origin: string; destination: string }[]>([]);
   const [vehicles, setVehicles] = useState<string[]>([]);
   const [shipments, setShipments] = useState<any[]>([]);
   const [itemTypes, setItemTypes] = useState<string[]>([]);
@@ -153,7 +153,7 @@ export default function ShipmentsPage() {
               .filter((f: any) => f && f.flight_number)
               .map((f: any) => [f.flight_number, f])
           ).values()
-        ) as { flight_number: string; status: string }[];
+        ) as { flight_number: string; status: string;origin: string; destination: string }[];
 
         setFlights(unique);
       })
@@ -391,15 +391,15 @@ export default function ShipmentsPage() {
     if (!form.penerima) errors.penerima = "Receiver Name is required";
     if (!form.telepon) errors.telepon = "Sender Phone Number is required";
     if (!form.teleponPenerima) errors.teleponPenerima = "Receiver Phone Number is required";
-    if (!form.asal) errors.asal = "Origin is required";
-    if (!form.tujuan) errors.tujuan = "Destination is required";
-    if (
-      form.asal &&
-      form.tujuan &&
-      form.asal === form.tujuan
-    ) {
-      errors.tujuan = "Destination city cannot be the same as the origin city";
-    }
+    // if (!form.asal) errors.asal = "Origin is required";
+    // if (!form.tujuan) errors.tujuan = "Destination is required";
+    // if (
+    //   form.asal &&
+    //   form.tujuan &&
+    //   form.asal === form.tujuan
+    // ) {
+    //   errors.tujuan = "Destination city cannot be the same as the origin city";
+    // }
     if (!form.namaBarang) errors.namaBarang = "Item Name is required";
     if (!form.jenisBarang) errors.jenisBarang = "Cargo Type is required";
     if (!form.berat) errors.berat = "Weight is required";
@@ -470,8 +470,8 @@ export default function ShipmentsPage() {
       phone_number: form.telepon,
       receiver_phone_number: form.teleponPenerima,
 
-      origin_city: form.asal,
-      destination_city: form.tujuan,
+      origin_city: selectedFlight?.origin,
+      destination_city: selectedFlight?.destination,
 
       shipping_type: form.jenisPengiriman,
       shipment_status: selectedFlight.status || "Received",
@@ -611,6 +611,20 @@ export default function ShipmentsPage() {
       alert("Failed to update shipment.");
     }
   };
+
+  const selectedFlight = flights.find(
+    (f) => f.flight_number === form.flight
+  );
+
+  useEffect(() => {
+    if (selectedFlight) {
+      setForm((prev) => ({
+        ...prev,
+        asal: selectedFlight.origin,
+        tujuan: selectedFlight.destination,
+      }));
+    }
+  }, [selectedFlight]);
 
   return (
     <div>
@@ -1023,43 +1037,35 @@ export default function ShipmentsPage() {
               {/* ASAL */}
               <div>
                 <label className="text-sm">Origin</label>
-                <select
-                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.asal ? 'border-red-500' : ''}`}
+                <input
+                  type="text"
                   value={form.asal}
-                  onChange={(e) => {
-                    setForm({ ...form, asal: e.target.value });
-                    if (formErrors.asal) setFormErrors({ ...formErrors, asal: "" });
-                  }}
-                >
-                  <option value="">Select Origin City</option>
-                  {cities.map((city) => (
-                    <option key={city.code} value={`${city.name} (${city.code})`}>
-                      {city.name} ({city.code})
-                    </option>
-                  ))}
-                </select>
-                {formErrors.asal && <p className="text-red-500 text-xs mt-1">{formErrors.asal}</p>}
+                  disabled
+                  placeholder="Select a flight number first"
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 bg-gray-100 text-gray-600 ${
+                    formErrors.asal ? "border-red-500" : ""
+                  }`}
+                />
+                {formErrors.asal && (
+                  <p className="text-red-500 text-xs mt-1">{formErrors.asal}</p>
+                )}
               </div>
 
               {/* TUJUAN */}
               <div>
                 <label className="text-sm">Destination</label>
-                <select
-                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${formErrors.tujuan ? 'border-red-500' : ''}`}
+                <input
+                  type="text"
                   value={form.tujuan}
-                  onChange={(e) => {
-                    setForm({ ...form, tujuan: e.target.value });
-                    if (formErrors.tujuan) setFormErrors({ ...formErrors, tujuan: "" });
-                  }}
-                >
-                  <option value="">Select Destination City</option>
-                  {cities.map((city) => (
-                    <option key={city.code} value={`${city.name} (${city.code})`}>
-                      {city.name} ({city.code})
-                    </option>
-                  ))}
-                </select>
-                {formErrors.tujuan && <p className="text-red-500 text-xs mt-1">{formErrors.tujuan}</p>}
+                  disabled
+                  placeholder="Select a flight number first"
+                  className={`w-full border rounded-lg px-3 py-2 mt-1 bg-gray-100 text-gray-600 ${
+                    formErrors.tujuan ? "border-red-500" : ""
+                  }`}
+                />
+                {formErrors.tujuan && (
+                  <p className="text-red-500 text-xs mt-1">{formErrors.tujuan}</p>
+                )}
               </div>
 
               {/* BERAT */}
@@ -1379,13 +1385,24 @@ export default function ShipmentsPage() {
                 <select
                   value={editData.flight || ""}
                   onChange={(e) => {
-                    const selectedFlight = flights.find((f) => f.flight_number === e.target.value);
+                    const selectedFlight = flights.find(
+                      (f) => f.flight_number === e.target.value
+                    );
+
                     setEditData({
                       ...editData,
                       flight: e.target.value,
-                      status: selectedFlight ? selectedFlight.status : editData.status,
+                      status: selectedFlight?.status || editData.status,
+                      asal: selectedFlight?.origin || "",
+                      tujuan: selectedFlight?.destination || "",
                     });
-                    if (editErrors.flight) setEditErrors({ ...editErrors, flight: "" });
+
+                    if (editErrors.flight) {
+                      setEditErrors({
+                        ...editErrors,
+                        flight: "",
+                      });
+                    }
                   }}
                   className={`w-full border rounded-lg px-3 py-2 mt-1 ${editErrors.flight ? 'border-red-500' : ''}`}
                 >
@@ -1402,53 +1419,23 @@ export default function ShipmentsPage() {
               {/* BARIS 5 */}
               <div>
                 <label className="text-sm">Origin</label>
-                <select
-                  value={editData.asal || ""}
-                  onChange={(e) => {
-                    setEditData({ ...editData, asal: e.target.value });
-                    if (editErrors.asal) setEditErrors({ ...editErrors, asal: "" });
-                  }}
-                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${
-                    editErrors.asal ? "border-red-500" : ""
-                  }`}
-                >
-                  <option value="">Select Origin City</option>
-
-                  {cities.map((city) => (
-                    <option
-                      key={`edit-origin-${city.code}`}
-                      value={`${city.name} (${city.code})`}
-                    >
-                      {city.name} ({city.code})
-                    </option>
-                  ))}
-                </select>
+                <input
+                  type="text"
+                  value={editData.asal}
+                  disabled
+                  className="w-full border rounded-lg px-3 py-2 mt-1 bg-gray-100 text-gray-600 cursor-not-allowed"
+                />
                 {editErrors.asal && <p className="text-red-500 text-xs mt-1">{editErrors.asal}</p>}
               </div>
 
               <div>
                 <label className="text-sm">Destination</label>
-                <select
-                  value={editData.tujuan || ""}
-                  onChange={(e) => {
-                    setEditData({ ...editData, tujuan: e.target.value });
-                    if (editErrors.tujuan) setEditErrors({ ...editErrors, tujuan: "" });
-                  }}
-                  className={`w-full border rounded-lg px-3 py-2 mt-1 ${
-                    editErrors.tujuan ? "border-red-500" : ""
-                  }`}
-                >
-                  <option value="">Select Destination City</option>
-
-                  {cities.map((city) => (
-                    <option
-                      key={`edit-destination-${city.code}`}
-                      value={`${city.name} (${city.code})`}
-                    >
-                      {city.name} ({city.code})
-                    </option>
-                  ))}
-                </select>
+                <input
+                  type="text"
+                  value={editData.tujuan}
+                  disabled
+                  className="w-full border rounded-lg px-3 py-2 mt-1 bg-gray-100 text-gray-600 cursor-not-allowed"
+                />
                 {editErrors.tujuan && <p className="text-red-500 text-xs mt-1">{editErrors.tujuan}</p>}
               </div>
 
