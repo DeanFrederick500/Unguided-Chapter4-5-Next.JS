@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
@@ -23,10 +24,19 @@ export default function MustLoginPage() {
               </div>
 
               <h2 className="text-2xl font-bold text-red-900">
-                Anda harus login terlebih dahulu untuk mengakses halaman ini.
+                Authentication required. Please log in to access this page.
               </h2>
 
             </div>
+          </div>
+
+          <div className="flex justify-center">
+            <Link
+              href="/"
+              className="bg-blue-700 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-800 transition-all duration-300 hover:shadow-lg"
+            >
+              Back to Landing Page
+            </Link>
           </div>
 
         </div>
